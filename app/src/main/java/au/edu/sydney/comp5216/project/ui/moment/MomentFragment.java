@@ -1,4 +1,4 @@
-package au.edu.sydney.comp5216.project.ui.dashboard;
+package au.edu.sydney.comp5216.project.ui.moment;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -14,17 +14,17 @@ import androidx.lifecycle.ViewModelProviders;
 
 import au.edu.sydney.comp5216.project.R;
 
-public class DashboardFragment extends Fragment {
+public class MomentFragment extends Fragment{
 
-    private DashboardViewModel dashboardViewModel;
+    private MomentViewModel momentViewModel;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-        dashboardViewModel =
-                ViewModelProviders.of(this).get(DashboardViewModel.class);
-        View root = inflater.inflate(R.layout.fragment_dashboard, container, false);
-        final TextView textView = root.findViewById(R.id.text_dashboard);
-        dashboardViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
+        momentViewModel =
+                ViewModelProviders.of(this).get(MomentViewModel.class);
+        View root = inflater.inflate(R.layout.fragment_moment, container, false);
+        final TextView textView = root.findViewById(R.id.text_moment);
+        momentViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
                 textView.setText(s);
