@@ -12,14 +12,26 @@
         tools:layout="@layout/fragment_home" />
 
     <fragment
-        android:id="@+id/navigation_dashboard"
-        android:name="au.edu.sydney.comp5216.project.ui.dashboard.DashboardFragment"
-        android:label="@string/title_dashboard"
-        tools:layout="@layout/fragment_dashboard" />
+        android:id="@+id/navigation_moment"
+        android:name="au.edu.sydney.comp5216.project.ui.moment.MomentFragment"
+        android:label="@string/title_moment"
+        tools:layout="@layout/fragment_moment" />
 
     <fragment
-        android:id="@+id/navigation_notifications"
-        android:name="au.edu.sydney.comp5216.project.ui.notifications.NotificationsFragment"
-        android:label="@string/title_notifications"
-        tools:layout="@layout/fragment_notifications" />
+        android:id="@+id/navigation_post"
+        android:name="au.edu.sydney.comp5216.project.ui.post.PostFragment"
+        android:label="@string/title_post"
+        tools:layout="@layout/fragment_post" />
+
+    <fragment
+        android:id="@+id/navigation_chat"
+        android:name="au.edu.sydney.comp5216.project.ui.chat.ChatFragment"
+        android:label="@string/title_chat"
+        tools:layout="@layout/fragment_chat" />
+
+    <fragment
+        android:id="@+id/navigation_profile"
+        android:name="au.edu.sydney.comp5216.project.ui.profile.ProfileFragment"
+        android:label="@string/title_profile"
+        tools:layout="@layout/fragment_profile" />
 </navigation>

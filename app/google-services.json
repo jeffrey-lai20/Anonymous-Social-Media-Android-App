@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "227558143602",
+    "firebase_url": "https://comp5216-project.firebaseio.com",
+    "project_id": "comp5216-project",
+    "storage_bucket": "comp5216-project.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:227558143602:android:be11cca14db9121439f4eb",
+        "android_client_info": {
+          "package_name": "au.edu.sydney.comp5216.project"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "227558143602-ulnb81qr32m0c18ii0604n5perum8fn5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAxsHy0HbdhN5jwLfGp7W494oucX3dSzi8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "227558143602-ulnb81qr32m0c18ii0604n5perum8fn5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
