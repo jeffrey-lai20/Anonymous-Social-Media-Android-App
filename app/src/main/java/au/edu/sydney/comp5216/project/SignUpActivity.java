@@ -18,6 +18,8 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -92,6 +94,7 @@ public class SignUpActivity extends AppCompatActivity {
 
                 progressBar.setVisibility(View.VISIBLE);
                 //create user
+
                 auth.createUserWithEmailAndPassword(email, password)
                         .addOnCompleteListener(SignUpActivity.this, new OnCompleteListener<AuthResult>() {
                             @Override
@@ -125,6 +128,21 @@ public class SignUpActivity extends AppCompatActivity {
                                                         user.put("myRooms", new ArrayList());
                                                         user.put("savedCollections", new ArrayList());
                                                         user.put("id", count);
+
+                                                        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+
+                                                        UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                                                                .setDisplayName(Integer.toString(count)).build();
+
+                                                        firebaseUser.updateProfile(profileUpdates)
+                                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                                    @Override
+                                                                    public void onComplete(@NonNull Task<Void> task) {
+                                                                        if (task.isSuccessful()) {
+                                                                            Log.d("TAG", "User profile updated.");
+                                                                        }
+                                                                    }
+                                                                });
 
                                                         //Add user details to Firestore database
                                                         db.collection("users").add(user)
