@@ -1,14 +1,17 @@
 package au.edu.sydney.comp5216.project.ui.post;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -26,12 +29,17 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import au.edu.sydney.comp5216.project.R;
 
@@ -45,10 +53,11 @@ public class PostFragment extends Fragment {
     private EditText text;
     private Bitmap selectedImage;
     private Uri photoUri;
-    private DatabaseReference mDatabase;
     public static final int PICK_IMAGE = 1;
     private FirebaseStorage storage = FirebaseStorage.getInstance();
     private StorageReference storageRef = storage.getReference();
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -81,17 +90,21 @@ public class PostFragment extends Fragment {
                 addimage();
             }
         });
-        mDatabase = FirebaseDatabase.getInstance().getReference();
 
         return root;
     }
 
     private void post(){
+        // Hide keyboard
+        final InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(getView().getWindowToken(), 0);
         final String value = text.getText().toString();
-        if(value != ""){
+        if(TextUtils.isEmpty(value)){
+            Toast.makeText(getActivity(),"Please type something",Toast.LENGTH_SHORT).show();
+        }else{
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
             if (user != null) {
-                final String email = user.getEmail();
+                final Integer id = Integer.parseInt(user.getDisplayName());
                 // if user added image
                 if(iPreview.getVisibility() == View.VISIBLE){
                     StorageReference postRef = storageRef.child("images/"+photoUri.getLastPathSegment());
@@ -106,28 +119,35 @@ public class PostFragment extends Fragment {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             String path = "images/"+photoUri.getLastPathSegment();
-                            Post newpost = new Post(email,value,ServerValue.TIMESTAMP,path);
-                            writetodb(newpost);
+                            writetodb(id,value,path);
                         }
                     });
                 }else{
-                    Post newpost = new Post(email,value,ServerValue.TIMESTAMP);
-                    writetodb(newpost);
+                    writetodb(id,value,null);
                 }
             }
-        }else{
-            System.out.println("Please type something");
         }
     }
 
-    private void writetodb(Post post){
-        mDatabase.child("posts").push().setValue(post).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                Toast.makeText(getActivity(),"Successful!",Toast.LENGTH_SHORT).show();
-                Log.d("Post","Successful!");
-            }
-        })
+    // Save post to database
+    private void writetodb(Integer id, String content,String path){
+        // Create post
+        Map<String, Object> post = new HashMap<>();
+        post.put("id", id);
+        post.put("content", content);
+        post.put("image_path", path);
+        post.put("created_at", FieldValue.serverTimestamp());
+
+        // Save post to database
+        db.collection("posts")
+                .add(post)
+                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                    @Override
+                    public void onSuccess(DocumentReference documentReference) {
+                        Toast.makeText(getActivity(),"Successful!",Toast.LENGTH_SHORT).show();
+                        Log.d("Post","Successful!");
+                    }
+                })
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
@@ -137,6 +157,7 @@ public class PostFragment extends Fragment {
                 });
     }
 
+    // Pick image from gallery
     private void addimage(){
         Intent intent = new Intent();
         intent.setType("image/*");
