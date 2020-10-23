@@ -33,5 +33,6 @@
     <string name="btn_remove">Remove</string>
     <string name="btn_sign_out">Sign Out</string>
     <string name="lbl_forgot_password">Forgot password?</string>
-    <string name="forgot_password_msg">Enter your registered email to receive password reset instructions</string>
+
+    <string name="grid_view_item_test">I just want to find someone to talk</string>>
 </resources>

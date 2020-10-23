@@ -7,6 +7,7 @@ public class Post {
     public String email;
     public String content;
     public Map<String,String> timestamp;
+    public String imagepath;
 
     public Post() {
     }
@@ -15,5 +16,12 @@ public class Post {
         this.content = content;
         this.email = email;
         this.timestamp = timestamp;
+    }
+
+    public Post(String email, String content, Map<String,String> timestamp,String imagepath) {
+        this.content = content;
+        this.email = email;
+        this.timestamp = timestamp;
+        this.imagepath = imagepath;
     }
 }

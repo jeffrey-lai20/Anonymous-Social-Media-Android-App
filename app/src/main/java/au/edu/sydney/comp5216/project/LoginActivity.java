@@ -66,6 +66,7 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 String email = inputEmail.getText().toString();
                 final String password = inputPassword.getText().toString();
 
