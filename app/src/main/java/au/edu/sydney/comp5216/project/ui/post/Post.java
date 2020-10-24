@@ -21,4 +21,16 @@ public class Post {
         this.id = id;
         this.imagepath = imagepath;
     }
+
+    public Integer getid(){
+        return this.id;
+    }
+
+    public String getcontent(){
+        return this.content;
+    }
+
+    public String getimagepath(){
+        return this.imagepath;
+    }
 }
