@@ -134,6 +134,8 @@ public class SignUpActivity extends AppCompatActivity {
                                                         UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
                                                                 .setDisplayName(Integer.toString(count)).build();
 
+                                                        auth.getCurrentUser().updateProfile(profileUpdates);
+
                                                         firebaseUser.updateProfile(profileUpdates)
                                                                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                                                                     @Override
