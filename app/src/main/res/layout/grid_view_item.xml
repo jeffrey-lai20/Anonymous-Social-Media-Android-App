@@ -19,7 +19,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
                 android:gravity="center"
-                android:text="@string/grid_view_item_test"
                 android:textColor="#000"
                 android:textSize="15dp" />
 

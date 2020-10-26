@@ -13,6 +13,7 @@ import androidx.cardview.widget.CardView;
 
 import org.w3c.dom.Text;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import au.edu.sydney.comp5216.project.ui.home.HomeFragment;
@@ -20,8 +21,7 @@ import au.edu.sydney.comp5216.project.ui.home.HomeFragment;
 public class GridAdapter extends BaseAdapter {
 
     private Context context;
-    private String[] rooms;
-    private String[] peopleNumOfRooms;
+    private ArrayList<RoomItem> rooms;
     LayoutInflater inflater;
 
     /**
@@ -29,12 +29,10 @@ public class GridAdapter extends BaseAdapter {
      *
      * @param context adapter context
      * @param rooms   room list
-     * @param peopleNumOfRooms   people number list of each room
      */
-    public GridAdapter(Context context, String[] rooms, String[] peopleNumOfRooms) {
+    public GridAdapter(Context context, ArrayList<RoomItem> rooms) {
         this.context = context;
         this.rooms = rooms;
-        this.peopleNumOfRooms = peopleNumOfRooms;
         inflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
@@ -45,7 +43,7 @@ public class GridAdapter extends BaseAdapter {
      */
     @Override
     public int getCount() {
-        return rooms.length;
+        return rooms.size();
     }
 
     /**
@@ -56,7 +54,7 @@ public class GridAdapter extends BaseAdapter {
      */
     @Override
     public Object getItem(int position) {
-        return rooms[position];
+        return rooms.get(position);
     }
 
     /**
@@ -87,8 +85,8 @@ public class GridAdapter extends BaseAdapter {
 
         TextView roomName = (TextView) convertView.findViewById(R.id.gv_textView_name);
         TextView roomPeople = (TextView) convertView.findViewById(R.id.gv_textView_num);
-        roomName.setText(rooms[position]);
-        roomPeople.setText(peopleNumOfRooms[position]);
+        roomName.setText(rooms.get(position).getRoomName());
+        roomPeople.setText(rooms.get(position).getJoinedUserNum());
         //Bitmap image = items.get(position).getImage();
 
         // if (image != null){
