@@ -1,27 +1,36 @@
 package au.edu.sydney.comp5216.project.ui.post;
 
-import java.util.HashMap;
-import java.util.Map;
+
+import com.google.firebase.firestore.FieldValue;
 
 public class Post {
-    public String email;
+    public Integer id;
     public String content;
-    public Map<String,String> timestamp;
     public String imagepath;
 
     public Post() {
     }
 
-    public Post(String email, String content, Map<String,String> timestamp) {
+    public Post(Integer id, String content) {
         this.content = content;
-        this.email = email;
-        this.timestamp = timestamp;
+        this.id = id;
     }
 
-    public Post(String email, String content, Map<String,String> timestamp,String imagepath) {
+    public Post(Integer id, String content,String imagepath) {
         this.content = content;
-        this.email = email;
-        this.timestamp = timestamp;
+        this.id = id;
         this.imagepath = imagepath;
+    }
+
+    public Integer getid(){
+        return this.id;
+    }
+
+    public String getcontent(){
+        return this.content;
+    }
+
+    public String getimagepath(){
+        return this.imagepath;
     }
 }
