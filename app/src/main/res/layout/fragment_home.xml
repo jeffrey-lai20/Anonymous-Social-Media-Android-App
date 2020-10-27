@@ -22,7 +22,6 @@
         android:layout_alignParentEnd="true"
         android:layout_marginTop="520dp"
         android:layout_marginEnd="20dp"
-        android:onClick="addNewRoomClicked"
         android:src="@drawable/ic_add_new_room"
         android:background="@android:color/transparent"/>
 
@@ -34,7 +33,6 @@
         android:layout_alignStart="@+id/btn_add_new_room"
         android:layout_alignEnd="@+id/btn_add_new_room"
         android:layout_marginTop="15dp"
-        android:onClick="searchRoomClicked"
         android:src="@drawable/ic_search_room"
         android:background="@android:color/transparent"/>
 
