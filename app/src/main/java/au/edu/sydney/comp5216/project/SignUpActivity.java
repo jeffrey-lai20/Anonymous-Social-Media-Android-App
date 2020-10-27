@@ -8,6 +8,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -39,6 +41,9 @@ public class SignUpActivity extends AppCompatActivity {
     private FirebaseAuth auth;
     private FirebaseFirestore db;
 
+    private RadioGroup radioGender;
+    private String gender = "male";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,6 +60,35 @@ public class SignUpActivity extends AppCompatActivity {
         inputPassword = (EditText) findViewById(R.id.password);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         btnResetPassword = (Button) findViewById(R.id.btn_reset_password);
+
+        radioGender=(RadioGroup)findViewById(R.id.radioGrp);
+
+
+        radioGender.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                // TODO Auto-generated method stub
+                int childCount = group.getChildCount();
+                for (int x = 0; x < childCount; x++) {
+                    RadioButton btn = (RadioButton) group.getChildAt(x);
+
+                    if (btn.getId() == R.id.radioM){
+                        btn.setText("Male");
+                    } else if (btn.getId() == R.id.radioF) {
+                        btn.setText("Female");
+                    } else if (btn.getId() == R.id.radioO) {
+                        btn.setText("Other");
+                    }
+
+                    if (btn.getId() == checkedId) {
+                        gender=btn.getText().toString();// here gender will contain M or F.
+                    }
+                }
+                Log.e("Gender", gender);
+            }
+        });
+
 
         btnResetPassword.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -128,6 +162,7 @@ public class SignUpActivity extends AppCompatActivity {
                                                         user.put("myRooms", new ArrayList());
                                                         user.put("savedCollections", new ArrayList());
                                                         user.put("id", count);
+                                                        user.put("gender", gender);
 
                                                         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
