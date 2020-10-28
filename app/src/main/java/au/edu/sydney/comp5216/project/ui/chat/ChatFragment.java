@@ -1,5 +1,6 @@
 package au.edu.sydney.comp5216.project.ui.chat;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,6 +51,13 @@ public class ChatFragment extends Fragment {
             }
         });
 
+        root.findViewById(R.id.addBtn).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
         mAdapter = new CommonAdapter<ChatInfo>(R.layout.item_chat_view,chatViewModel.getData().getValue()) {
             @Override
             public void convert(CommonViewHolder holder, ChatInfo item, int position) {
@@ -76,13 +84,12 @@ public class ChatFragment extends Fragment {
         chatLv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-
+                startActivity(new Intent(getActivity(),ChatDetailActivity.class));
             }
         });
 
         chatLv.setAdapter(mAdapter);
         return root;
     }
-
 
 }

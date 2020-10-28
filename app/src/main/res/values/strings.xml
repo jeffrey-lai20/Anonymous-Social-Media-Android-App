@@ -42,4 +42,9 @@
 
     <string name="btn_setting">Setting</string>
     <string name="layout_based">Setting</string>
+
+    <string name="nullMsg">empty message</string>
+
+    <string name="no_friends_tips">You don’t have any chat history yet, go find more friends~</string>
+    <string name="send">Send</string>
 </resources>
