@@ -3,11 +3,15 @@ package au.edu.sydney.comp5216.project.ui.chat;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SearchView;
@@ -38,6 +42,7 @@ public class ChatFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
         chatViewModel = ViewModelProviders.of(this).get(ChatViewModel.class);
         View root = inflater.inflate(R.layout.fragment_chat, container, false);
+        setHasOptionsMenu(true);
         chatLv = root.findViewById(R.id.chatLv);
         searchView = root.findViewById(R.id.searchView);
         swipeRefreshLayout = root.findViewById(R.id.swipeRefreshLayout);
@@ -48,13 +53,6 @@ public class ChatFragment extends Fragment {
             @Override
             public void onChanged(List<ChatInfo> data) {
                 mAdapter.refreshView(data);
-            }
-        });
-
-        root.findViewById(R.id.addBtn).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
             }
         });
 
@@ -92,4 +90,20 @@ public class ChatFragment extends Fragment {
         return root;
     }
 
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        inflater.inflate(R.menu.chat_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.add_friend:
+                Toast.makeText(getActivity(),"add friend",Toast.LENGTH_SHORT).show();
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }

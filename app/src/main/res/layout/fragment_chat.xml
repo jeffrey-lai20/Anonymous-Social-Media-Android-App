@@ -48,16 +48,4 @@
             android:text="@string/no_friends_tips"
             android:visibility="gone"/>
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/addBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="16dp"
-            android:layout_marginBottom="30dp"
-            android:src="@drawable/add"
-            android:clickable="true"
-            app:pressedTranslationZ="6dp"
-            app:rippleColor="#f1f1f1"/>
 </RelativeLayout>
