@@ -1,7 +1,10 @@
 package au.edu.sydney.comp5216.project;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -27,7 +30,11 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -157,17 +164,21 @@ public class SignUpActivity extends AppCompatActivity {
                                                             count++;
                                                         }
                                                         count = 10000000 + count;   //User ID will be determined on number of users
-                                                        Map<String, Object> user = new HashMap<>();
+                                                        String uri = "https://firebasestorage.googleapis.com/v0/b/comp5216-project.appspot.com/o/default.png?alt=media&token=aaffd36b-ae21-4a8f-bfe0-cd0dc742c892";
+                                                        final Map<String, Object> user = new HashMap<>();
                                                         user.put("email", email);
                                                         user.put("myRooms", new ArrayList());
                                                         user.put("savedCollections", new ArrayList());
                                                         user.put("id", count);
                                                         user.put("gender", gender);
+                                                        user.put("photo", uri);
 
                                                         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
                                                         UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-                                                                .setDisplayName(Integer.toString(count)).build();
+                                                                .setDisplayName(Integer.toString(count))
+                                                                .setPhotoUri(Uri.parse(uri))
+                                                                .build();
 
                                                         auth.getCurrentUser().updateProfile(profileUpdates);
 
