@@ -136,6 +136,7 @@ public class PostFragment extends Fragment {
         post.put("id", id);
         post.put("content", content);
         post.put("image_path", path);
+        post.put("likes", 0);
         post.put("created_at", FieldValue.serverTimestamp());
 
         // Save post to database
