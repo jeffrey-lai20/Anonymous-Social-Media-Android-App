@@ -8,14 +8,15 @@ public class RoomItem {
     private String ownerId;
     private String roomName;
     private String joinedUserNum;
-    private ArrayList<Integer> joinedUserIDs;
+    private ArrayList<String> joinedUserIDs;
 
     public RoomItem(String ownerId, String roomName, String joinedUserNum) {
         this.roomId = UUID.randomUUID().toString();
         this.ownerId = ownerId;
         this.roomName = roomName;
         this.joinedUserNum = joinedUserNum;
-        this.joinedUserIDs = new ArrayList<Integer>();
+        this.joinedUserIDs = new ArrayList<String>();
+        joinedUserIDs.add(ownerId);
     }
 
     public String getRoomId() {
@@ -50,11 +51,11 @@ public class RoomItem {
         this.joinedUserNum = joinedUserNum;
     }
 
-    public ArrayList<Integer> getJoinedUserIDs() {
+    public ArrayList<String> getJoinedUserIDs() {
         return joinedUserIDs;
     }
 
-    public void setJoinedUserIDs(ArrayList<Integer> joinedUserIDs) {
+    public void setJoinedUserIDs(ArrayList<String> joinedUserIDs) {
         this.joinedUserIDs = joinedUserIDs;
     }
 

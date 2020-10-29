@@ -19,13 +19,20 @@ import au.edu.sydney.comp5216.project.GridAdapter;
 import au.edu.sydney.comp5216.project.R;
 import au.edu.sydney.comp5216.project.RoomItem;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class HomeFragment extends Fragment implements View.OnClickListener{
@@ -52,16 +59,13 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         fireStore = FirebaseFirestore.getInstance();
 
-        if(firebaseUser != null){
-            userId = firebaseUser.getDisplayName();
-            Toast.makeText(getActivity(),
-                    "User ID: "+ userId+"!", Toast.LENGTH_SHORT).show();
-            rooms = new ArrayList<RoomItem>();
-            rooms.add(new RoomItem(userId,"Welcome to 0204!",""));
-        } else {
-            Toast.makeText(getActivity(),
-                    "User is not exist!", Toast.LENGTH_SHORT).show();
-        }
+        rooms = new ArrayList<RoomItem>();
+
+        userId = firebaseUser.getDisplayName();
+        Toast.makeText(getActivity(),
+                "User ID: "+ userId+"!", Toast.LENGTH_SHORT).show();
+
+        getRoomFromDB();
 
         gridView = (GridView) root.findViewById(R.id.gridView);
         gridAdapter = new GridAdapter(getActivity(), rooms);
@@ -175,5 +179,39 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
         room.put("joined_user_list", roomItem.getJoinedUserIDs());
 
         rooms.document(roomItem.getRoomId()).set(room);
+    }
+
+    private void getRoomFromDB(){
+        Toast.makeText(getActivity(),
+                "Start Get Documents!", Toast.LENGTH_SHORT).show();
+        CollectionReference collectionRef = fireStore.collection("rooms");
+        collectionRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    List<DocumentSnapshot> myListOfDocuments = task.getResult().getDocuments();
+                    rooms.add(new RoomItem(userId,"Welcome to 0204!",""));
+                    for(DocumentSnapshot document : myListOfDocuments){
+                        Map<String, Object> room = document.getData();
+                        String roomId = room.get("room_id").toString();
+                        String ownerId = room.get("owner_id").toString();
+                        String roomName = room.get("room_name").toString();
+                        String joinedUserNum = room.get("joined_num").toString();
+                        ArrayList<String> joinedUserIDs
+                                =  (ArrayList<String>) document.get("joined_user_list");
+                        RoomItem roomItem = new RoomItem(ownerId, roomName, joinedUserNum);
+                        roomItem.setRoomId(roomId);
+                        roomItem.setJoinedUserIDs(joinedUserIDs);
+                        rooms.add(roomItem);
+                        gridAdapter.notifyDataSetChanged();
+                        Toast.makeText(getActivity(),
+                                "Get Documents Success!", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(getActivity(),
+                            "Get Documents Failed!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 }

@@ -24,4 +24,9 @@
     <color name="btn_logut_bg">#ff6861</color>
 
     <drawable name="list_divider_color">#e5e5e5</drawable>
+
+    <color name="colorBlack">#000000</color>
+    <color name="colorDarkGrey">#abaaaa</color>
+    <color name="colorWhite">#ffffff</color>
+    <color name="colorDarkGreen">#02bf1f</color>
 </resources>
