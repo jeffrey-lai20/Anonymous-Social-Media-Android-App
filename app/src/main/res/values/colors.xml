@@ -7,6 +7,8 @@
 <!--    <color name="colorPrimaryDark">#0097a7</color>-->
 <!--    <color name="colorAccent">#f2fe71</color>-->
 
+    <color name="red">#FF0000</color>
+    <color name="SteelBlue">#4682B4</color>
     <color name="bg_login">#26ae90</color>
     <color name="bg_register">#2e3237</color>
     <color name="bg_main">#428bca</color>
@@ -22,4 +24,9 @@
     <color name="btn_logut_bg">#ff6861</color>
 
     <drawable name="list_divider_color">#e5e5e5</drawable>
+
+    <color name="colorBlack">#000000</color>
+    <color name="colorDarkGrey">#abaaaa</color>
+    <color name="colorWhite">#ffffff</color>
+    <color name="colorDarkGreen">#02bf1f</color>
 </resources>

@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,6 +20,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -26,7 +31,9 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.core.OrderBy;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import au.edu.sydney.comp5216.project.R;
@@ -49,7 +56,7 @@ public class MomentFragment extends Fragment{
                 ViewModelProviders.of(this).get(MomentViewModel.class);
         View root = inflater.inflate(R.layout.fragment_moment, container, false);
         mRecyclerView = (RecyclerView) root.findViewById(R.id.list_moment);
-        getpost();
+        getlist_like();
         mAdapter = new ListViewAdaptor(mDataList);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
         mRecyclerView.setLayoutManager(mLayoutManager);
@@ -59,16 +66,7 @@ public class MomentFragment extends Fragment{
         return root;
     }
 
-    public void prepareList(){
-        Post post = new Post(10000000,"Price1");
-        mDataList.add(post);
-        post = new Post(20000000,"Price2");
-        mDataList.add(post);
-        post = new Post(30000000,"Price3");
-        mDataList.add(post);
-    }
-
-    public void getpost(){
+    public void getpost(final ArrayList<String> group){
         db.collection("posts")
                 .orderBy("created_at", Query.Direction.DESCENDING)
                 .get()
@@ -77,7 +75,10 @@ public class MomentFragment extends Fragment{
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                post = new Post(document.getLong("id").intValue(),document.getString("content"),document.getString("image_path"));
+                                post = new Post(document.getLong("id").intValue(),document.getString("content"),document.getString("image_path"),document.getLong("likes").intValue(),document.getId());
+                                if(group.contains(post.getpid())){
+                                    post.setlike(true);
+                                }
                                 mDataList.add(post);
                             }
                             mAdapter.notifyDataSetChanged();
@@ -88,4 +89,32 @@ public class MomentFragment extends Fragment{
                 });
 
     }
+
+    public void getlist_like(){
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        DocumentReference docref = db.collection("users").document(user.getDisplayName());
+        docref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        ArrayList<String> group = (ArrayList<String>) document.get("likes");
+                        getpost(group);
+                    } else {
+
+                    }
+                } else {
+                    Toast.makeText(getActivity(),"Failed. Please check your network connection",Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
 }
+
+
+
+
+
+
+

@@ -29,13 +29,17 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.common.primitives.Bytes;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -65,6 +69,9 @@ public class Setting extends AppCompatActivity {
     // instance for firebase storage and StorageReference
     FirebaseStorage storage;
     StorageReference storageReference;
+
+    private FirebaseFirestore db;
+
     public String photoFileName = "photo.jpg";
     private File file;
 
@@ -182,6 +189,7 @@ public class Setting extends AppCompatActivity {
             {
                 takePhoto.setVisibility(View.VISIBLE);
                 loadPhoto.setVisibility(View.VISIBLE);
+                changePicture.setVisibility(View.GONE);
 //                SelectImage();
 //                uploadImage();
             }
@@ -207,7 +215,7 @@ public class Setting extends AppCompatActivity {
         if (!marshmallowPermission.checkPermissionForCamera()
                 || !marshmallowPermission.checkPermissionForExternalStorage()) {
             marshmallowPermission.requestPermissionForCamera();
-        }  else {
+        } else {
             // create Intent to take a picture and return control to the calling application
             Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
@@ -304,6 +312,39 @@ public class Setting extends AppCompatActivity {
                 // Load the taken image into a preview
                 ivPreview.setImageBitmap(takenImage);
                 ivPreview.setVisibility(View.VISIBLE);
+                if(takenImage != null) {
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+                    final ProgressDialog progressDialog = new ProgressDialog(this);
+                    progressDialog.setTitle("Uploading...");
+                    progressDialog.show();
+                    takenImage.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                    byte[] bytes = baos.toByteArray();
+
+                    StorageReference ref = storageReference.child("images/"+ UUID.randomUUID().toString());
+
+                    //Adds the URI as a reference for Firebase Storage
+                    ref.putBytes(bytes).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            progressDialog.dismiss();
+                            Toast.makeText(Setting.this, "Uploaded", Toast.LENGTH_SHORT).show();
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            progressDialog.dismiss();
+                            Toast.makeText(Setting.this, "Failed "+e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                            double progress = (100.0*taskSnapshot.getBytesTransferred()/taskSnapshot
+                                    .getTotalByteCount());
+                            progressDialog.setMessage("Uploaded "+(int)progress+"%");
+                        }
+                    });
+                }
             } else { // Result was a failure
                 Toast.makeText(this, "Picture wasn't taken!",
                         Toast.LENGTH_SHORT).show();
@@ -312,6 +353,39 @@ public class Setting extends AppCompatActivity {
             if (resultCode == RESULT_OK) {
                 Uri photoUri = data.getData();
                 // Do something with the photo based on Uri
+                if(photoUri != null) {
+                    //Upload to firebase
+                    final ProgressDialog progressDialog = new ProgressDialog(this);
+                    progressDialog.setTitle("Uploading...");
+                    progressDialog.show();
+                    StorageReference ref = storageReference.child("images/"+ UUID.randomUUID().toString());
+
+                    //Adds the URI as a reference for Firebase Storage
+                    ref.putFile(photoUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            progressDialog.dismiss();
+                            Toast.makeText(Setting.this, "Uploaded", Toast.LENGTH_SHORT).show();
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            progressDialog.dismiss();
+                            Toast.makeText(Setting.this, "Failed "+e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                            double progress = (100.0*taskSnapshot.getBytesTransferred()/taskSnapshot
+                                    .getTotalByteCount());
+                            progressDialog.setMessage("Uploaded "+(int)progress+"%");
+                        }
+                    });
+
+                    db.collection("users").document(auth.getCurrentUser().getUid()).update("image", ref);
+                }
+
+
                 Bitmap selectedImage;
                 try {
                     selectedImage = MediaStore.Images.Media.getBitmap(
