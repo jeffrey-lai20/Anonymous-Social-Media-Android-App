@@ -28,10 +28,17 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 public class HomeFragment extends Fragment implements View.OnClickListener{
 
@@ -63,6 +70,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
         Toast.makeText(getActivity(),
                 "User ID: "+ userId+"!", Toast.LENGTH_SHORT).show();
 
+        rooms.add(new RoomItem(userId,"Welcome to 0204!"));
         getRoomFromDB();
 
         gridView = (GridView) root.findViewById(R.id.gridView);
@@ -109,10 +117,11 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
                         boolean checkBoolean = inputCheck(inputName);
                         if(checkBoolean){
                             //add new room to grid view
-                            RoomItem roomItem = new RoomItem(userId, inputName,"1");
+                            RoomItem roomItem = new RoomItem(userId, inputName);
                             ArrayList<String> joinedUserIDs = new ArrayList<String>();
                             joinedUserIDs.add(userId);
                             roomItem.setOwnerId(userId);
+                            roomItem.setJoinedUserNum("1");
                             roomItem.setJoinedUserIDs(joinedUserIDs);
                             rooms.add(roomItem);
                             saveRoomToDB(roomItem);
@@ -179,6 +188,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
         room.put("room_name", roomItem.getRoomName());
         room.put("joined_num", roomItem.getJoinedUserNum());
         room.put("joined_user_list", roomItem.getJoinedUserIDs());
+        room.put("room_created_time", roomItem.getRoomCreatedTime());
 
         rooms.document(roomItem.getRoomId()).set(room);
     }
@@ -192,20 +202,22 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     List<DocumentSnapshot> myListOfDocuments = task.getResult().getDocuments();
-                    rooms.add(new RoomItem(userId,"Welcome to 0204!",""));
                     for(DocumentSnapshot document : myListOfDocuments){
                         Map<String, Object> room = document.getData();
                         String roomId = room.get("room_id").toString();
-//                        String ownerId = room.get("owner_id").toString();
-                        String ownerId = null;
+                        String ownerId = room.get("owner_id").toString();
                         String roomName = room.get("room_name").toString();
                         String joinedUserNum = room.get("joined_num").toString();
                         ArrayList<String> joinedUserIDs
                                 =  (ArrayList<String>) document.get("joined_user_list");
-                        RoomItem roomItem = new RoomItem(ownerId, roomName, joinedUserNum);
+                        String roomCreatedTime = room.get("room_created_time").toString();
+                        RoomItem roomItem = new RoomItem(ownerId, roomName);
                         roomItem.setRoomId(roomId);
+                        roomItem.setJoinedUserNum(joinedUserNum);
                         roomItem.setJoinedUserIDs(joinedUserIDs);
+                        roomItem.setRoomCreatedTime(roomCreatedTime);
                         rooms.add(roomItem);
+                        sortItemsByDate();
                         gridAdapter.notifyDataSetChanged();
                         Toast.makeText(getActivity(),
                                 "Get Documents Success!", Toast.LENGTH_SHORT).show();
@@ -216,5 +228,19 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
                 }
             }
         });
+    }
+
+    /**
+     * Sort all exist items by date when items' size greater than 1,
+     * the latest edit/add item at the first.
+     */
+    private void sortItemsByDate(){
+        if(rooms.size() > 1){
+            Collections.sort(rooms, new Comparator<RoomItem>() {
+                public int compare(RoomItem r1, RoomItem r2) {
+                    return r2.compareTo(r1);
+                }
+            });
+        }
     }
 }
