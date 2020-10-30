@@ -99,7 +99,7 @@ public class MomentFragment extends Fragment{
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
-                        ArrayList<String> group = (ArrayList<String>) document.get("likes");
+                        ArrayList<String> group = (ArrayList<String>) document.get("postLikes");
                         getpost(group);
                     } else {
 
