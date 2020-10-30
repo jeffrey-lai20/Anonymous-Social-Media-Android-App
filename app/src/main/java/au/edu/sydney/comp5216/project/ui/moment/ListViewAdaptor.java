@@ -123,12 +123,12 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
                     post.setlike(true);
                     post.setlikes_account(post.getlikes()+1);
                     updateLikeCount(post);
-                    dbref.update("likes", FieldValue.arrayUnion(post.getpid()));
+                    dbref.update("postLikes", FieldValue.arrayUnion(post.getpid()));
                 } else {
                     post.setlike(false);
                     post.setlikes_account(post.getlikes()-1);
                     updateLikeCount(post);
-                    dbref.update("likes", FieldValue.arrayRemove(post.getpid()));
+                    dbref.update("postLikes", FieldValue.arrayRemove(post.getpid()));
                 }
             }
         });
