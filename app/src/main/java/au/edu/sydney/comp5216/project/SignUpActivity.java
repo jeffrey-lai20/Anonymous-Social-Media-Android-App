@@ -1,13 +1,18 @@
 package au.edu.sydney.comp5216.project;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -25,7 +30,11 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -38,6 +47,9 @@ public class SignUpActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private FirebaseAuth auth;
     private FirebaseFirestore db;
+
+    private RadioGroup radioGender;
+    private String gender = "male";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +67,35 @@ public class SignUpActivity extends AppCompatActivity {
         inputPassword = (EditText) findViewById(R.id.password);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         btnResetPassword = (Button) findViewById(R.id.btn_reset_password);
+
+        radioGender=(RadioGroup)findViewById(R.id.radioGrp);
+
+
+        radioGender.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                // TODO Auto-generated method stub
+                int childCount = group.getChildCount();
+                for (int x = 0; x < childCount; x++) {
+                    RadioButton btn = (RadioButton) group.getChildAt(x);
+
+                    if (btn.getId() == R.id.radioM){
+                        btn.setText("Male");
+                    } else if (btn.getId() == R.id.radioF) {
+                        btn.setText("Female");
+                    } else if (btn.getId() == R.id.radioO) {
+                        btn.setText("Other");
+                    }
+
+                    if (btn.getId() == checkedId) {
+                        gender=btn.getText().toString();// here gender will contain M or F.
+                    }
+                }
+                Log.e("Gender", gender);
+            }
+        });
+
 
         btnResetPassword.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -108,8 +149,6 @@ public class SignUpActivity extends AppCompatActivity {
                                             Toast.LENGTH_SHORT).show();
                                 } else {
 
-                                    //Sign in is successful
-
                                     //Access number of users in firestore database
                                     db.collection("users")
                                             .get()
@@ -123,16 +162,24 @@ public class SignUpActivity extends AppCompatActivity {
                                                             count++;
                                                         }
                                                         count = 10000000 + count;   //User ID will be determined on number of users
-                                                        Map<String, Object> user = new HashMap<>();
+                                                        String uri = "https://firebasestorage.googleapis.com/v0/b/comp5216-project.appspot.com/o/default.png?alt=media&token=aaffd36b-ae21-4a8f-bfe0-cd0dc742c892";
+                                                        final Map<String, Object> user = new HashMap<>();
                                                         user.put("email", email);
                                                         user.put("myRooms", new ArrayList());
                                                         user.put("savedCollections", new ArrayList());
                                                         user.put("id", count);
+                                                        user.put("gender", gender);
+                                                        user.put("photo", uri);
+                                                        user.put("postLikes", new ArrayList());
 
                                                         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
                                                         UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-                                                                .setDisplayName(Integer.toString(count)).build();
+                                                                .setDisplayName(Integer.toString(count))
+                                                                .setPhotoUri(Uri.parse(uri))
+                                                                .build();
+
+                                                        auth.getCurrentUser().updateProfile(profileUpdates);
 
                                                         firebaseUser.updateProfile(profileUpdates)
                                                                 .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -144,18 +191,21 @@ public class SignUpActivity extends AppCompatActivity {
                                                                     }
                                                                 });
 
-                                                        //Add user details to Firestore database
-                                                        db.collection("users").add(user)
-                                                                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                                                    @Override
-                                                                    public void onSuccess(DocumentReference documentReference) {
-                                                                    }
-                                                                })
-                                                                .addOnFailureListener(new OnFailureListener() {
-                                                                    @Override
-                                                                    public void onFailure(@NonNull Exception e) {
-                                                                    }
-                                                                });
+                                                        //Sign in is successful
+
+                                                        db.collection("users").document(String.valueOf(count)).set(user);
+//                                                        //Add user details to Firestore database
+//                                                        db.collection("users").add(user)
+//                                                                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+//                                                                    @Override
+//                                                                    public void onSuccess(DocumentReference documentReference) {
+//                                                                    }
+//                                                                })
+//                                                                .addOnFailureListener(new OnFailureListener() {
+//                                                                    @Override
+//                                                                    public void onFailure(@NonNull Exception e) {
+//                                                                    }
+//                                                                });
                                                     } else {
                                                         Log.d("TAG", "Error getting documents: ", task.getException());
                                                     }

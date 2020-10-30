@@ -196,7 +196,8 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
                     for(DocumentSnapshot document : myListOfDocuments){
                         Map<String, Object> room = document.getData();
                         String roomId = room.get("room_id").toString();
-                        String ownerId = room.get("owner_id").toString();
+//                        String ownerId = room.get("owner_id").toString();
+                        String ownerId = null;
                         String roomName = room.get("room_name").toString();
                         String joinedUserNum = room.get("joined_num").toString();
                         ArrayList<String> joinedUserIDs

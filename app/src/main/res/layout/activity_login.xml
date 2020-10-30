@@ -16,22 +16,24 @@
         android:padding="@dimen/activity_horizontal_margin">
 
 
-<!--        <ImageView-->
-<!--            android:layout_width="@dimen/logo_w_h"-->
-<!--            android:layout_height="@dimen/logo_w_h"-->
-<!--            android:layout_gravity="center_horizontal"-->
-<!--            android:layout_marginBottom="30dp"-->
-<!--            android:src="@mipmap/ic_launcher" />-->
+        <ImageView
+            android:layout_width="@dimen/logo_w_h"
+            android:layout_height="@dimen/logo_w_h"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:src="@drawable/anonymous" />
+
         <TextView
             android:layout_width="200dp"
             android:layout_height="100dp"
             android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="50dp"
+            android:layout_marginBottom="10dp"
             android:text="Anonymous Social Media"
             android:textColor="@color/white"
             android:textSize="32dp"
-            android:gravity="center"
-            />
+            android:gravity="center"/>
+
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
