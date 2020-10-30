@@ -96,7 +96,7 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
     @Override
     public void onBindViewHolder(final MyViewHolder holder, final int position) {
         final Post post = mDataList.get(position);
-
+        holder.setIsRecyclable(false);
         holder.id.setText(Integer.toString(post.getid()));
         holder.content.setText(post.getcontent());
         holder.likes_count.setText(Integer.toString(post.getlikes()));
