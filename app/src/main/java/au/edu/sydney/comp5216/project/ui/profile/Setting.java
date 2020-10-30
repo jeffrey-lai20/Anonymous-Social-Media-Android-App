@@ -139,12 +139,11 @@ public class Setting extends AppCompatActivity {
         password = (Button) findViewById(R.id.password);
         signOut = (Button) findViewById(R.id.sign_out);
         changePicture = (Button) findViewById(R.id.changePicture);
-        takePhoto = (Button) findViewById(R.id.takephoto);
+//        takePhoto = (Button) findViewById(R.id.takephoto);
         loadPhoto = (Button) findViewById(R.id.loadphoto);
-        takePhoto.setVisibility(View.GONE);
+//        takePhoto.setVisibility(View.GONE);
         loadPhoto.setVisibility(View.GONE);
-//        takePhoto.setVisibility(View.VISIBLE);
-//        loadPhoto.setVisibility(View.VISIBLE);
+
         // get the Firebase  storage reference
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
@@ -193,11 +192,9 @@ public class Setting extends AppCompatActivity {
             @Override
             public void onClick(View v)
             {
-                takePhoto.setVisibility(View.VISIBLE);
+//                takePhoto.setVisibility(View.VISIBLE);
                 loadPhoto.setVisibility(View.VISIBLE);
                 changePicture.setVisibility(View.GONE);
-//                SelectImage();
-//                uploadImage();
             }
         });
 
@@ -205,20 +202,10 @@ public class Setting extends AppCompatActivity {
         ImageView ivPreview = (ImageView) findViewById(R.id.photopreview);
 
         Uri uri = auth.getCurrentUser().getPhotoUrl();
-        Bitmap bmp = null;
 
-//        ivPreview.setImageBitmap(bmp);
-//        // by this point we have the camera photo on disk
-//        Bitmap takenImage = BitmapFactory.decodeFile(uri.getEncodedPath());
         Glide.with(ivPreview.getContext())
             .load(uri)
             .into(ivPreview);
-//            Bitmap bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), uri);
-//            ivPreview.setImageBitmap(bitmap);
-//            ivPreview.setVisibility(View.VISIBLE);
-
-//        // Load the taken image into a preview
-
     }
 
     public void onLoadPhotoClick(View view) {
@@ -239,12 +226,85 @@ public class Setting extends AppCompatActivity {
         if (!marshmallowPermission.checkPermissionForCamera()
                 || !marshmallowPermission.checkPermissionForExternalStorage()) {
             marshmallowPermission.requestPermissionForCamera();
-        } else {
-            Intent cameraIntent = new Intent(android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
-            startActivityForResult(cameraIntent, MY_PERMISSIONS_REQUEST_OPEN_CAMERA);
+        }  else {
+            // create Intent to take a picture and return control to the calling application
+            Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+            // set file name
+            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss",
+                    Locale.getDefault()).format(new Date());
+            photoFileName = "IMG_" + timeStamp + ".jpg";
+
+            // Create a photo file reference
+            Uri file_uri = getFileUri(photoFileName,0);
+
+            // Add extended data to the intent
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, file_uri);
+
             // If you call startActivityForResult() using an intent that no app can handle, your app will crash.
             // So as long as the result is not null, it's safe to use the intent.
+            if (intent.resolveActivity(getPackageManager()) != null) {
+                // Start the image capture intent to take photo
+                startActivityForResult(intent, MY_PERMISSIONS_REQUEST_OPEN_CAMERA);
+            }
         }
+    }
+
+    // Returns the Uri for a photo/media stored on disk given the fileName
+    public Uri getFileUri(String fileName) {
+        // Get safe storage directory for photos
+        //File mediaStorageDir = new File(
+        //      Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),APP_TAG);
+        File mediaStorageDir = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), APP_TAG);
+
+        // Create the storage directory if it does not exist
+        if (!mediaStorageDir.exists() && !mediaStorageDir.mkdirs()) {
+            Log.d(APP_TAG, "failed to create directory");
+        }
+
+        // Return the file target for the photo based on filename
+        return Uri.fromFile(new File(mediaStorageDir.getPath() + File.separator
+                + fileName));
+    }
+
+    // Returns the Uri for a photo/media stored on disk given the fileName and type
+    public Uri getFileUri(String fileName, int type) {
+        Uri fileUri = null;
+        try {
+            String typestr = "/images/"; //default to images type
+            if (type == 1) {
+                typestr = "/videos/";
+            } else if (type != 0) {
+                typestr = "/audios/";
+            }
+
+            // Get safe storage directory depending on type
+            File mediaStorageDir = new File(this.getExternalFilesDir(null).getAbsolutePath(),
+                    typestr+fileName);
+            //File mediaStorageDir = new File(Environment.getExternalStorageDirectory().getAbsolutePath(),
+            //        typestr+fileName);
+
+            // Create the storage directory if it does not exist
+            if (!mediaStorageDir.getParentFile().exists() && !mediaStorageDir.getParentFile().mkdirs()) {
+                Log.d(APP_TAG, "failed to create directory");
+            }
+
+            // Create the file target for the media based on filename
+            file = new File(mediaStorageDir.getParentFile().getPath() + File.separator + fileName);
+
+            // Wrap File object into a content provider, required for API >= 24
+            // See https://guides.codepath.com/android/Sharing-Content-with-Intents#sharing-files-with-api-24-or-higher
+            if (Build.VERSION.SDK_INT >= 24) {
+                fileUri = FileProvider.getUriForFile(
+                        this.getApplicationContext(),
+                        "au.edu.sydney.comp5216.mediaaccess.fileProvider", file);
+            } else {
+                fileUri = Uri.fromFile(mediaStorageDir);
+            }
+        } catch (Exception ex) {
+            Log.d("getFileUri", ex.getStackTrace().toString());
+        }
+        return fileUri;
     }
 
     @Override
@@ -253,75 +313,7 @@ public class Setting extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         ImageView ivPreview = (ImageView) findViewById(R.id.photopreview);
 
-//        ivPreview.setVisibility(View.GONE);
-
         if (requestCode == MY_PERMISSIONS_REQUEST_OPEN_CAMERA) {
-            // by this point we have the camera photo on disk
-//            Bitmap takenImage = BitmapFactory.decodeFile(file.getAbsolutePath());
-//            Bitmap photo = (Bitmap) data.getExtras().get("data");
-//            ivPreview.setImageBitmap(photo);
-
-//            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-//            takenImage.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
-//            String path = MediaStore.Images.Media.insertImage(ivPreview.getContentResolver(), inImage, "Title", null);
-//            return Uri.parse(path);
-
-            FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-
-            UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-                    .setPhotoUri(Uri.parse(file.getAbsolutePath()))
-                    .build();
-
-            auth.getCurrentUser().updateProfile(profileUpdates);
-
-            firebaseUser.updateProfile(profileUpdates)
-                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()) {
-                                Log.d("TAG", "User profile updated.");
-                            }
-                        }
-                    });
-            Glide.with(ivPreview.getContext())
-                    .load(file.getAbsolutePath())
-                    .into(ivPreview);
-            // Load the taken image into a preview
-//                ivPreview.setImageBitmap(takenImage);
-//                ivPreview.setVisibility(View.VISIBLE);
-//                if(takenImage != null) {
-//                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//
-//                    final ProgressDialog progressDialog = new ProgressDialog(this);
-//                    progressDialog.setTitle("Uploading...");
-//                    progressDialog.show();
-//                    takenImage.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-//                    byte[] bytes = baos.toByteArray();
-//
-//                    StorageReference ref = storageReference.child("images/"+ UUID.randomUUID().toString());
-//
-//                    //Adds the URI as a reference for Firebase Storage
-//                    ref.putBytes(bytes).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-//                        @Override
-//                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-//                            progressDialog.dismiss();
-//                            Toast.makeText(Setting.this, "Uploaded", Toast.LENGTH_SHORT).show();
-//                        }
-//                    }).addOnFailureListener(new OnFailureListener() {
-//                        @Override
-//                        public void onFailure(@NonNull Exception e) {
-//                            progressDialog.dismiss();
-//                            Toast.makeText(Setting.this, "Failed "+e.getMessage(), Toast.LENGTH_SHORT).show();
-//                        }
-//                    }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-//                        @Override
-//                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-//                            double progress = (100.0*taskSnapshot.getBytesTransferred()/taskSnapshot
-//                                    .getTotalByteCount());
-//                            progressDialog.setMessage("Uploaded "+(int)progress+"%");
-//                        }
-//                    });
-//                }
 
         } else if (requestCode == MY_PERMISSIONS_REQUEST_READ_PHOTOS) {
             if (resultCode == RESULT_OK) {
@@ -346,55 +338,6 @@ public class Setting extends AppCompatActivity {
                 Glide.with(ivPreview.getContext())
                         .load(photoUri)
                         .into(ivPreview);
-                // Do something with the photo based on Uri
-//                if(photoUri != null) {
-//                    //Upload to firebase
-//                    final ProgressDialog progressDialog = new ProgressDialog(this);
-//                    progressDialog.setTitle("Uploading...");
-//                    progressDialog.show();
-//                    String uri = "images/"+ UUID.randomUUID().toString();
-//                    StorageReference ref = storageReference.child(uri);
-//
-//                    //Adds the URI as a reference for Firebase Storage
-//                    ref.putFile(photoUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-//                        @Override
-//                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-//                            progressDialog.dismiss();
-//                            Toast.makeText(Setting.this, "Uploaded", Toast.LENGTH_SHORT).show();
-//                        }
-//                    }).addOnFailureListener(new OnFailureListener() {
-//                        @Override
-//                        public void onFailure(@NonNull Exception e) {
-//                            progressDialog.dismiss();
-//                            Toast.makeText(Setting.this, "Failed "+e.getMessage(), Toast.LENGTH_SHORT).show();
-//                        }
-//                    }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-//                        @Override
-//                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-//                            double progress = (100.0*taskSnapshot.getBytesTransferred()/taskSnapshot
-//                                    .getTotalByteCount());
-//                            progressDialog.setMessage("Uploaded "+(int)progress+"%");
-//                        }
-//                    });
-//
-//                }
-
-
-//                Bitmap selectedImage;
-//                try {
-//                    selectedImage = MediaStore.Images.Media.getBitmap(
-//                            this.getContentResolver(), photoUri);
-//
-//                    // Load the selected image into a preview
-//                    ivPreview.setImageBitmap(selectedImage);
-//                    ivPreview.setVisibility(View.VISIBLE);
-//                } catch (FileNotFoundException e) {
-//                    // TODO Auto-generated catch block
-//                    e.printStackTrace();
-//                } catch (IOException e) {
-//                    // TODO Auto-generated catch block
-//                    e.printStackTrace();
-//                }
             }
         }
     }

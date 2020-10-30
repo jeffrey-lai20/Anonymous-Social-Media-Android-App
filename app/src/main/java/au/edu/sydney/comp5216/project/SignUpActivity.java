@@ -149,8 +149,6 @@ public class SignUpActivity extends AppCompatActivity {
                                             Toast.LENGTH_SHORT).show();
                                 } else {
 
-                                    //Sign in is successful
-
                                     //Access number of users in firestore database
                                     db.collection("users")
                                             .get()
@@ -172,6 +170,7 @@ public class SignUpActivity extends AppCompatActivity {
                                                         user.put("id", count);
                                                         user.put("gender", gender);
                                                         user.put("photo", uri);
+                                                        user.put("postLikes", new ArrayList());
 
                                                         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
@@ -192,18 +191,21 @@ public class SignUpActivity extends AppCompatActivity {
                                                                     }
                                                                 });
 
-                                                        //Add user details to Firestore database
-                                                        db.collection("users").add(user)
-                                                                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                                                    @Override
-                                                                    public void onSuccess(DocumentReference documentReference) {
-                                                                    }
-                                                                })
-                                                                .addOnFailureListener(new OnFailureListener() {
-                                                                    @Override
-                                                                    public void onFailure(@NonNull Exception e) {
-                                                                    }
-                                                                });
+                                                        //Sign in is successful
+
+                                                        db.collection("users").document(String.valueOf(count)).set(user);
+//                                                        //Add user details to Firestore database
+//                                                        db.collection("users").add(user)
+//                                                                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+//                                                                    @Override
+//                                                                    public void onSuccess(DocumentReference documentReference) {
+//                                                                    }
+//                                                                })
+//                                                                .addOnFailureListener(new OnFailureListener() {
+//                                                                    @Override
+//                                                                    public void onFailure(@NonNull Exception e) {
+//                                                                    }
+//                                                                });
                                                     } else {
                                                         Log.d("TAG", "Error getting documents: ", task.getException());
                                                     }
