@@ -24,10 +24,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
@@ -112,6 +110,10 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
                         if(checkBoolean){
                             //add new room to grid view
                             RoomItem roomItem = new RoomItem(userId, inputName,"1");
+                            ArrayList<String> joinedUserIDs = new ArrayList<String>();
+                            joinedUserIDs.add(userId);
+                            roomItem.setOwnerId(userId);
+                            roomItem.setJoinedUserIDs(joinedUserIDs);
                             rooms.add(roomItem);
                             saveRoomToDB(roomItem);
                             gridAdapter.notifyDataSetChanged();
