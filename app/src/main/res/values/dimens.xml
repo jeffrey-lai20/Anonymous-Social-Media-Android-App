@@ -14,4 +14,5 @@
     <dimen name="margin_img">10dip</dimen>
     <dimen name="content_text_16sp">16sp</dimen>
     <dimen name="content_text_14sp">14sp</dimen>
+    <dimen name="text_margin">20dp</dimen>
 </resources>
