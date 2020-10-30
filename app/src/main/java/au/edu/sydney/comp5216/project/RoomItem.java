@@ -66,6 +66,15 @@ public class RoomItem implements Comparable<RoomItem> {
         this.joinedUserIDs = joinedUserIDs;
     }
 
+    public boolean addJoinedUserIdToRoom(String userId){
+        if(userId != null){
+            ArrayList<String> newUserAdd= getJoinedUserIDs();
+            newUserAdd.add(userId);
+            return true;
+        }
+        return  false;
+    }
+
     public String getRoomCreatedTime() { return roomCreatedTime; }
 
     public void setRoomCreatedTime(String roomCreatedTime) { this.roomCreatedTime = roomCreatedTime; }
@@ -98,7 +107,7 @@ public class RoomItem implements Comparable<RoomItem> {
         Date date1 = convertStringToDate(cuTime1);
         String cuTime2 = o.getRoomCreatedTime();
         Date date2 = convertStringToDate(cuTime2);
-        return date1.compareTo(date2);
+        return date2.compareTo(date1);
     }
 
     /**

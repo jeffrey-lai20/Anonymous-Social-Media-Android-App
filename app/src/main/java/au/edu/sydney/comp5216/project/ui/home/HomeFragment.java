@@ -70,7 +70,9 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
         Toast.makeText(getActivity(),
                 "User ID: "+ userId+"!", Toast.LENGTH_SHORT).show();
 
-        rooms.add(new RoomItem(userId,"Welcome to 0204!"));
+        RoomItem defaultRoom = new RoomItem(userId,"Welcome to 0204!");
+        defaultRoom.setRoomCreatedTime("2020-1-1 00:00:01");
+        rooms.add(defaultRoom);
         getRoomFromDB();
 
         gridView = (GridView) root.findViewById(R.id.gridView);
@@ -139,6 +141,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
                 break;
 
             case R.id.btn_search_room:
+
 
                 break;
             default:
