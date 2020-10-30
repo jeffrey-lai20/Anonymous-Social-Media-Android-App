@@ -22,7 +22,7 @@ public class HelpUtils {
         int resId = res.getIdentifier("status_bar_height", "dimen", "android");
         return res.getDimensionPixelSize(resId);
 
-        //也可以通过反射
+        // Can also be reflected
         /**
          Class<?> c = null;
          Object obj = null;
@@ -42,11 +42,11 @@ public class HelpUtils {
     }
 
     /**
-     * 用户友好时间显示
+     * Time display  for Users
      *
-     * @param nowTime 现在时间毫秒
-     * @param preTime 之前时间毫秒
-     * @return 符合用户习惯的时间显示
+     * @param nowTime Current time in milliseconds
+     * @param preTime  Previous time in milliseconds
+     * @return Time display in line with user habits
      */
     public static String calculateShowTime(long nowTime, long preTime) {
         if (nowTime <= 0 || preTime <= 0)
@@ -56,21 +56,21 @@ public class HelpUtils {
         String pre = format.format(new Date(preTime));
         String[] nowTimeArr = now.split("-");
         String[] preTimeArr = pre.split("-");
-        //当天以内,年月日相同，超过一分钟显示
+        // Within the day, the year, month, and day are the same, and the time display is more than one minute
         if (nowTimeArr[0].equals(preTimeArr[0]) && nowTimeArr[1].equals(preTimeArr[1]) && nowTimeArr[2].equals(preTimeArr[2]) && nowTime - preTime > 60000) {
             return preTimeArr[3] + ":" + preTimeArr[4];
         }
-        //一周以内
+        // Within a week
         else if (Integer.valueOf(nowTimeArr[2]) - Integer.valueOf(preTimeArr[2]) > 0 && nowTime - preTime < 7 * 24 * 60 * 60 * 1000) {
 
             if (Integer.valueOf(nowTimeArr[2]) - Integer.valueOf(preTimeArr[2]) == 1)
-                return "昨天 " + preTimeArr[3] + ":" + preTimeArr[4];
+                return "yesterday " + preTimeArr[3] + ":" + preTimeArr[4];
             else
                 return preTimeArr[5] + " " + preTimeArr[3] + ":" + preTimeArr[4];
         }
-        //一周以上
+        //More than one week
         else if (nowTime - preTime > 7 * 24 * 60 * 60 * 1000) {
-            return preTimeArr[0] + "年" + preTimeArr[1] + "月" + preTimeArr[2] + "日" + " " + preTimeArr[3] + ":" + preTimeArr[4];
+            return preTimeArr[0] + "year" + preTimeArr[1] + "month" + preTimeArr[2] + "day" + " " + preTimeArr[3] + ":" + preTimeArr[4];
         }
         return null;
     }
