@@ -57,14 +57,16 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
     private ChildViewAdaptor mAdapter;
     public List<Reply> replies = new ArrayList<>();
     public List<ChildViewAdaptor> adapters = new ArrayList<>();
+    public Integer mExpandedPosition = -1;
 
     public class MyViewHolder extends RecyclerView.ViewHolder{
         public TextView id,content, likes_count;
-        public ImageView imageView;
+        public ImageView imageView,picture;
         public ToggleButton btn_like;
         public RecyclerView child_view;
         public ImageButton btn_reply;
         public EditText text_reply;
+
 
 
         public MyViewHolder(View view){
@@ -77,6 +79,7 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
             child_view = (RecyclerView) view.findViewById(R.id.childrecyclerview);
             btn_reply = (ImageButton) view.findViewById(R.id.btn_reply);
             text_reply = (EditText) view.findViewById(R.id.text_reply);
+            picture = (ImageView)view.findViewById(R.id.image_user);
         }
     }
 
@@ -96,17 +99,27 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
     @Override
     public void onBindViewHolder(final MyViewHolder holder, final int position) {
         final Post post = mDataList.get(position);
-        holder.setIsRecyclable(false);
+        final boolean isExpanded = position==mExpandedPosition;
+        StorageReference storageReference = FirebaseStorage.getInstance().getReference();
+        StorageReference pathpicture = storageReference.child("default.png");
+        Glide.with(context)
+                .load(pathpicture)
+                .apply(new RequestOptions().override(50, 50))
+                .into(holder.picture);
+        holder.child_view.setVisibility(isExpanded?View.VISIBLE:View.GONE);
+        holder.btn_reply.setVisibility(isExpanded?View.VISIBLE:View.GONE);
+        holder.text_reply.setVisibility(isExpanded?View.VISIBLE:View.GONE);
+        holder.itemView.setActivated(isExpanded);
         holder.id.setText(Integer.toString(post.getid()));
         holder.content.setText(post.getcontent());
         holder.likes_count.setText(Integer.toString(post.getlikes()));
         holder.btn_like.setOnCheckedChangeListener(null);
         holder.btn_like.setChecked(post.like);
+        holder.imageView.setImageResource(android.R.color.transparent);
+
         // Show image if the post contains image
         if (TextUtils.isEmpty(post.getimagepath())) {
-
         }else{
-            StorageReference storageReference = FirebaseStorage.getInstance().getReference();
             StorageReference pathReference = storageReference.child(post.getimagepath());
             Glide.with(context)
                     .load(pathReference)
@@ -137,7 +150,8 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getreply(post, holder);
+                mExpandedPosition = isExpanded ? -1:position;
+                getreply(post, holder, position);
             }
         });
 
@@ -174,8 +188,9 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
     }
 
     // Get replies on db
-    public void getreply(Post post,MyViewHolder holder){
+    public void getreply(Post post,MyViewHolder holder,Integer position){
         final MyViewHolder holdera = holder;
+        final Integer mypostion = position;
         replies = new ArrayList<>();
         Query reply = db.collection("replies").whereEqualTo("reply_to_id",post.getpid());
         reply.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -192,6 +207,7 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
                     holdera.child_view.setItemAnimator(new DefaultItemAnimator());
                     holdera.child_view.setHasFixedSize(true);
                     holdera.child_view.setAdapter(mAdapter);
+                    notifyDataSetChanged();
                 } else {
 
                 }
@@ -224,6 +240,26 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
                         Log.d("Post","Failed. Please check your network connection");
                     }
                 });
+    }
+
+    public void getprofile_picture(final Reply reply){
+        DocumentReference docref = db.collection("users").document(reply.getid().toString());
+        docref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        reply.setUser_picture_path(document.getString("photo"));
+                        replies.add(reply);
+                    } else {
+
+                    }
+                } else {
+                    Toast.makeText(context,"Failed. Please check your network connection",Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 }
 
