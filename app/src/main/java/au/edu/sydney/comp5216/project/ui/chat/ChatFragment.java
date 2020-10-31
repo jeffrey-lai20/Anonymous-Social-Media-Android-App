@@ -82,7 +82,6 @@ public class ChatFragment extends Fragment {
         chatLv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                startActivity(new Intent(getActivity(),ChatDetailActivity.class));
             }
         });
 
