@@ -31,6 +31,7 @@ public class ChildViewAdaptor extends RecyclerView.Adapter<ChildViewAdaptor.Chil
     private Context context;
     public class ChildViewHolder extends RecyclerView.ViewHolder{
         public TextView id,content;
+        public ImageView picture;
 
 
 
@@ -38,6 +39,7 @@ public class ChildViewAdaptor extends RecyclerView.Adapter<ChildViewAdaptor.Chil
             super(view);
             id = (TextView) view.findViewById(R.id.user_id);
             content= (TextView) view.findViewById(R.id.post_content);
+            picture = (ImageView)view.findViewById(R.id.image_user);
         }
     }
 
@@ -58,6 +60,12 @@ public class ChildViewAdaptor extends RecyclerView.Adapter<ChildViewAdaptor.Chil
         final Reply reply = mDataList.get(position);
         holder.id.setText(Integer.toString(reply.getid()));
         holder.content.setText(reply.getcontent());
+        StorageReference storageReference = FirebaseStorage.getInstance().getReference();
+        StorageReference pathpicture = storageReference.child("default.png");
+        Glide.with(context)
+                .load(pathpicture)
+                .apply(new RequestOptions().override(50, 50))
+                .into(holder.picture);
     }
 
     @Override
