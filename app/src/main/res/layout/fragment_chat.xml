@@ -27,7 +27,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="1dp">
+            android:layout_marginTop="1dp"
+            android:visibility="gone">
 
             <ListView
                 android:id="@+id/chatLv"
@@ -37,7 +38,6 @@
                 android:dividerHeight="1.5px"/>
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-
         <TextView
             android:id="@+id/tipsTv"
             android:layout_width="wrap_content"
@@ -45,7 +45,12 @@
             android:layout_margin="70dp"
             android:gravity="center"
             android:layout_centerInParent="true"
-            android:text="@string/no_friends_tips"
-            android:visibility="gone"/>
+            android:visibility="gone"
+            android:text="@string/no_friends_tips"/>
 
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"/>
 </RelativeLayout>

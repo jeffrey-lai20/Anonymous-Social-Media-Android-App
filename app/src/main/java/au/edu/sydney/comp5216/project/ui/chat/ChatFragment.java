@@ -11,7 +11,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.Toast;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SearchView;
@@ -23,20 +24,27 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.firebase.auth.FirebaseAuth;
+
 import java.util.List;
 
 import au.edu.sydney.comp5216.project.R;
 import au.edu.sydney.comp5216.project.base.CommonAdapter;
 import au.edu.sydney.comp5216.project.base.CommonViewHolder;
-import au.edu.sydney.comp5216.project.entity.ChatInfo;
+import au.edu.sydney.comp5216.project.common.Constants;
+import au.edu.sydney.comp5216.project.entity.ChatListInfo;
+import au.edu.sydney.comp5216.project.utils.HelpUtils;
+import au.edu.sydney.comp5216.project.utils.PreferencesUtils;
 
 public class ChatFragment extends Fragment {
 
     private ChatViewModel chatViewModel;
-    private CommonAdapter<ChatInfo> mAdapter;
+    private CommonAdapter<ChatListInfo> mAdapter;
     private ListView chatLv;
     private SearchView searchView;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private TextView tipsTv;
+    private ProgressBar progressBar;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -45,50 +53,84 @@ public class ChatFragment extends Fragment {
         setHasOptionsMenu(true);
         chatLv = root.findViewById(R.id.chatLv);
         searchView = root.findViewById(R.id.searchView);
+        tipsTv = root.findViewById(R.id.tipsTv);
+        progressBar = root.findViewById(R.id.progressBar);
+
         swipeRefreshLayout = root.findViewById(R.id.swipeRefreshLayout);
         swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
         searchView.findViewById(androidx.appcompat.R.id.search_plate).setBackground(null);
         searchView.findViewById(androidx.appcompat.R.id.submit_area).setBackground(null);
-        chatViewModel.getData().observe(getViewLifecycleOwner(), new Observer<List<ChatInfo>>() {
+        chatViewModel.getData().observe(getViewLifecycleOwner(), new Observer<List<ChatListInfo>>() {
             @Override
-            public void onChanged(List<ChatInfo> data) {
-                mAdapter.refreshView(data);
+            public void onChanged(List<ChatListInfo> data) {
+                if(data.size()>0) {
+                    swipeRefreshLayout.setVisibility(View.VISIBLE);
+                    tipsTv.setVisibility(View.GONE);
+                    mAdapter.refreshView(data);
+                }else{
+                    swipeRefreshLayout.setVisibility(View.GONE);
+                    tipsTv.setVisibility(View.VISIBLE);
+                }
+                progressBar.setVisibility(View.GONE);
             }
         });
 
-        mAdapter = new CommonAdapter<ChatInfo>(R.layout.item_chat_view,chatViewModel.getData().getValue()) {
+        mAdapter = new CommonAdapter<ChatListInfo>(R.layout.item_chat_view,chatViewModel.getData().getValue()) {
             @Override
-            public void convert(CommonViewHolder holder, ChatInfo item, int position) {
+            public void convert(CommonViewHolder holder, ChatListInfo item, int position) {
                 RequestOptions requestOptions = new RequestOptions()
                     .diskCacheStrategy(DiskCacheStrategy.ALL);
                 ImageView imageView = holder.getImageView(R.id.avatarIv);
                 Glide.with(getActivity())
-                    .load(R.mipmap.ic_launcher)
+                    .load(R.drawable.hdimg_4)
                     .apply(requestOptions)
                     .into(imageView);
-                holder.setTvText(R.id.idTv,item.userId);
+                holder.setTvText(R.id.idTv,item.email);
                 holder.setTvText(R.id.messageTv,item.lastMessage);
-                holder.setTvText(R.id.timeTv,item.time);
+                holder.setTvText(R.id.timeTv, HelpUtils.formatDate(item.timeStamp));
+                if(hasMessage(item)) {
+                    holder.setVisibility(R.id.redView, View.VISIBLE);
+                }else{
+                    holder.setVisibility(R.id.redView, View.GONE);
+                }
             }
         };
-
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-
-            }
-        });
 
         chatLv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                ChatListInfo chatListInfo = chatViewModel.getUserInfo(i);
+                if(chatListInfo != null) {
+                    Intent intent = new Intent(getActivity(), ChatDetailActivity.class);
+                    intent.putExtra("uid", chatListInfo.userId);
+                    intent.putExtra("email", chatListInfo.email);
+                    startActivity(intent);
+                    String uid = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
+                    String key = HelpUtils.getRoomId(uid,chatListInfo.userId);
+                    PreferencesUtils.putBoolean(getActivity(), Constants.PrefKey.HAS_MESSAGE+key,false);
+                    mAdapter.notifyDataSetChanged();
+                }
             }
         });
 
         chatLv.setAdapter(mAdapter);
+        chatViewModel.onCreate();
         return root;
     }
 
+
+    private boolean hasMessage(ChatListInfo chatListInfo)
+    {
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
+        String key = HelpUtils.getRoomId(uid,chatListInfo.userId);
+        return PreferencesUtils.getBoolean(getActivity(), Constants.PrefKey.HAS_MESSAGE+key,false);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        chatViewModel.onDestroy();
+    }
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
@@ -100,7 +142,7 @@ public class ChatFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.add_friend:
-                Toast.makeText(getActivity(),"add friend",Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(getActivity(), AddFriendsActivity.class));
                 break;
         }
         return super.onOptionsItemSelected(item);
