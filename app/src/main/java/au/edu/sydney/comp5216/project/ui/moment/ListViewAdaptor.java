@@ -1,10 +1,12 @@
 package au.edu.sydney.comp5216.project.ui.moment;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -12,6 +14,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -145,17 +148,16 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
             holder.imageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    AlertDialog.Builder imageDialog = new AlertDialog.Builder(context);
-                    LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                    View layout = inflater.inflate(R.layout.image_viewer, null);
-                    ImageView image = (ImageView) layout.findViewById(R.id.image_view);
+                    Dialog dialog = new Dialog(context);
+                    dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                    dialog.setContentView(R.layout.image_viewer);
+                    ImageView image = (ImageView) dialog.findViewById(R.id.image_view);
                     image.setScaleType(ImageView.ScaleType.FIT_XY);
                     Glide.with(context)
                             .load(pathReference)
                             .into(image);
-                    imageDialog.setView(layout);
-                    imageDialog.create();
-                    imageDialog.show();
+                    dialog.getWindow().setBackgroundDrawable(null);
+                    dialog.show();
                 }
             });
         }
@@ -185,8 +187,16 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
             public void onClick(View v) {
                 mExpandedPosition = isExpanded ? -1:position;
                 notifyItemChanged(position);
+                replies.clear();
+                mAdapter.notifyItemChanged(position);
                 if(isExpanded == false){
-                    getreply(post, holder, position);
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            getreply(post, holder, position);
+                        }
+                    }, 300);
                 }
             }
         });
@@ -227,8 +237,6 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
     public void getreply(Post post,MyViewHolder holder,Integer position){
         final MyViewHolder holdera = holder;
         final Integer myposition = position;
-        replies.clear();
-        mAdapter.notifyItemChanged(position);
         Query reply = db.collection("replies").whereEqualTo("reply_to_id",post.getpid());
         reply.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
