@@ -37,6 +37,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
@@ -74,7 +75,7 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
         public ToggleButton btn_like;
         public RecyclerView child_view;
         public ImageButton btn_reply;
-        public EditText text_reply;
+        public TextInputLayout text_reply;
         //public ProgressBar ic_loading;
 
 
@@ -88,7 +89,7 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
             btn_like = (ToggleButton) view.findViewById(R.id.btn_likes);
             child_view = (RecyclerView) view.findViewById(R.id.childrecyclerview);
             btn_reply = (ImageButton) view.findViewById(R.id.btn_reply);
-            text_reply = (EditText) view.findViewById(R.id.text_reply);
+            text_reply = (TextInputLayout) view.findViewById(R.id.text_reply);
             picture = (ImageView)view.findViewById(R.id.image_user);
             //ic_loading = (ProgressBar)view.findViewById(R.id.ic_loading);
         }
@@ -207,7 +208,7 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
             public void onClick(View v) {
                 final InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                String value = holder.text_reply.getText().toString();
+                String value = holder.text_reply.getEditText().getText().toString();
                 if(TextUtils.isEmpty(value)){
                     Toast.makeText(context,"Please type something",Toast.LENGTH_SHORT).show();
                 }else{
