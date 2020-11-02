@@ -37,12 +37,9 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-<<<<<<< HEAD
-=======
 import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
->>>>>>> 9d1f382ee2d2f0f9cb26f4a0672a99057414e714
 
 public class HomeFragment extends Fragment implements View.OnClickListener {
 
@@ -135,7 +132,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         return root;
     }
 
-<<<<<<< HEAD
     private void updateRoomData(RoomItem clickedRoom) {
         //update room joined number and joined user
         int joinedUserNum = Integer.parseInt(clickedRoom.getJoinedUserNum());
@@ -160,9 +156,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                     "Update room failed! This user already in the list", Toast.LENGTH_SHORT).show();
         }
     }
-=======
-
->>>>>>> 9d1f382ee2d2f0f9cb26f4a0672a99057414e714
 
     @Override
     public void onClick(View v) {
