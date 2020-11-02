@@ -2,17 +2,17 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimary">@color/colorPrimaryDark</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="colorAccent">@color/colorBlack</item>
 
         <!-- New MaterialComponents attributes. -->
-        <item name="colorPrimaryVariant">@color/colorPrimary</item>
-        <item name="colorSecondaryVariant">@color/colorPrimary</item>
-        <item name="colorSurface">@color/colorPrimary</item>
-        <item name="colorOnPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryVariant">@color/colorPrimaryDark</item>
+        <item name="colorSecondaryVariant">@color/colorPrimaryDark</item>
+        <item name="colorSurface">@color/colorPrimaryDark</item>
+        <item name="colorOnPrimary">@color/colorPrimaryDark</item>
         <item name="colorOnSecondary">@color/colorPrimaryDark</item>
-        <item name="colorOnBackground">@color/colorPrimary</item>
+        <item name="colorOnBackground">@color/colorPrimaryDark</item>
         <item name="colorOnError">@color/red</item>
         <item name="colorOnSurface">@color/colorBlack</item>
         <item name="scrimBackground">@color/mtrl_scrim_color</item>

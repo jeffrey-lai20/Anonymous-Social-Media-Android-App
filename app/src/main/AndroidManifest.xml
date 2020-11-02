@@ -8,7 +8,7 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/ic_logo"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
@@ -66,11 +66,4 @@
             android:name=".ui.profile.Setting"
             android:label="@string/app_name" />
     </application>
-<<<<<<< HEAD
-
-=======
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.CAMERA" />
->>>>>>> 9d1f382ee2d2f0f9cb26f4a0672a99057414e714
 </manifest>
