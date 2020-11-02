@@ -2,6 +2,7 @@ package au.edu.sydney.comp5216.project.ui.home;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +18,7 @@ import androidx.fragment.app.Fragment;
 
 import au.edu.sydney.comp5216.project.GridAdapter;
 import au.edu.sydney.comp5216.project.R;
+import au.edu.sydney.comp5216.project.RoomChat.RoomChatActivity;
 import au.edu.sydney.comp5216.project.RoomItem;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -28,19 +30,14 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 
-public class HomeFragment extends Fragment implements View.OnClickListener{
+public class HomeFragment extends Fragment implements View.OnClickListener {
 
     private GridView gridView;
     private GridAdapter gridAdapter;
@@ -68,9 +65,9 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
 
         userId = firebaseUser.getDisplayName();
         Toast.makeText(getActivity(),
-                "User ID: "+ userId+"!", Toast.LENGTH_SHORT).show();
+                "User ID: " + userId + "!", Toast.LENGTH_SHORT).show();
 
-        RoomItem defaultRoom = new RoomItem(userId,"Welcome to 0204!");
+        RoomItem defaultRoom = new RoomItem(userId, "Welcome to 0204!");
         defaultRoom.setRoomCreatedTime("2020-1-1 00:00:01");
         rooms.add(defaultRoom);
         getRoomFromDB();
@@ -83,7 +80,18 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //....
+                //The default room can not be changed
+                if (position != 0) {
+                    //get room item
+                    RoomItem clickedRoom = (RoomItem) gridView.getItemAtPosition(position);
+                    //update room data
+                    updateRoomData(clickedRoom);
+                    Intent i = new Intent(getActivity(), RoomChatActivity.class);
+                    i.putExtra("room_id", clickedRoom.getRoomId());
+                    i.putExtra("room_name", clickedRoom.getRoomName());
+                    i.putExtra("owner_id",clickedRoom.getOwnerId());
+                    startActivity(i);
+                }
             }
         });
 
@@ -95,6 +103,31 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
         searchRoomButton.setOnClickListener(this);
 
         return root;
+    }
+
+    private void updateRoomData(RoomItem clickedRoom) {
+        //update room joined number and joined user
+        int joinedUserNum = Integer.parseInt(clickedRoom.getJoinedUserNum());
+        ArrayList<String> joinedUserIDs = clickedRoom.getJoinedUserIDs();
+        if (!joinedUserIDs.contains(userId)) {
+            String num = Integer.toString(++joinedUserNum);
+            joinedUserIDs.add(userId);
+
+            Map<String, Object> room = new HashMap<>();
+            room.put("room_id", clickedRoom.getRoomId());
+            room.put("owner_id", clickedRoom.getOwnerId());
+            room.put("room_name", clickedRoom.getRoomName());
+            room.put("joined_num", num);
+            room.put("joined_user_list", joinedUserIDs);
+            room.put("room_created_time", clickedRoom.getRoomCreatedTime());
+
+            fireStore.collection("rooms").document(clickedRoom.getRoomId()).set(room);
+            Toast.makeText(getActivity(),
+                    "Update room success!", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getActivity(),
+                    "Update room failed! This user already in the list", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
@@ -117,7 +150,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
                     public void onClick(DialogInterface dialog, int which) {
                         String inputName = roomNameInput.getText().toString();
                         boolean checkBoolean = inputCheck(inputName);
-                        if(checkBoolean){
+                        if (checkBoolean) {
                             //add new room to grid view
                             RoomItem roomItem = new RoomItem(userId, inputName);
                             ArrayList<String> joinedUserIDs = new ArrayList<String>();
@@ -128,6 +161,11 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
                             rooms.add(roomItem);
                             saveRoomToDB(roomItem);
                             gridAdapter.notifyDataSetChanged();
+                            Intent i = new Intent(getActivity(), RoomChatActivity.class);
+                            i.putExtra("room_id", roomItem.getRoomId());
+                            i.putExtra("room_name", roomItem.getRoomName());
+                            i.putExtra("owner_id", roomItem.getOwnerId());
+                            startActivity(i);
                         }
                     }
                 });
@@ -149,8 +187,8 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
         }
     }
 
-    private boolean inputCheck(String input){
-        if(input.toCharArray().length == 0){
+    private boolean inputCheck(String input) {
+        if (input.toCharArray().length == 0) {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle(R.string.room_name_dialog_empty_title)
                     .setMessage(R.string.room_name_dialog_empty_msg)
@@ -162,7 +200,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
                     });
             builder.create().show();
             return false;
-        } else if(input.toCharArray().length > 50){
+        } else if (input.toCharArray().length > 50) {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle(R.string.room_name_dialog_long_title)
                     .setMessage(R.string.room_name_dialog_long_msg)
@@ -174,15 +212,15 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
                     });
             builder.create().show();
             return false;
-        } else{
+        } else {
             roomName = input;
             Toast.makeText(getActivity(),
-                    "Room Added: "+ roomName, Toast.LENGTH_SHORT).show();
+                    "Room Added: " + roomName, Toast.LENGTH_SHORT).show();
             return true;
         }
     }
 
-    private void saveRoomToDB(RoomItem roomItem){
+    private void saveRoomToDB(RoomItem roomItem) {
         CollectionReference rooms = fireStore.collection("rooms");
         // get all room info
         Map<String, Object> room = new HashMap<>();
@@ -196,23 +234,23 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
         rooms.document(roomItem.getRoomId()).set(room);
     }
 
-    private void getRoomFromDB(){
-        Toast.makeText(getActivity(),
-                "Start Get Documents!", Toast.LENGTH_SHORT).show();
+    private void getRoomFromDB() {
+        /*Toast.makeText(getActivity(),
+                "Start Get Documents!", Toast.LENGTH_SHORT).show();*/
         CollectionReference collectionRef = fireStore.collection("rooms");
         collectionRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     List<DocumentSnapshot> myListOfDocuments = task.getResult().getDocuments();
-                    for(DocumentSnapshot document : myListOfDocuments){
+                    for (DocumentSnapshot document : myListOfDocuments) {
                         Map<String, Object> room = document.getData();
                         String roomId = room.get("room_id").toString();
                         String ownerId = room.get("owner_id").toString();
                         String roomName = room.get("room_name").toString();
                         String joinedUserNum = room.get("joined_num").toString();
                         ArrayList<String> joinedUserIDs
-                                =  (ArrayList<String>) document.get("joined_user_list");
+                                = (ArrayList<String>) document.get("joined_user_list");
                         String roomCreatedTime = room.get("room_created_time").toString();
                         RoomItem roomItem = new RoomItem(ownerId, roomName);
                         roomItem.setRoomId(roomId);
@@ -237,8 +275,8 @@ public class HomeFragment extends Fragment implements View.OnClickListener{
      * Sort all exist items by date when items' size greater than 1,
      * the latest edit/add item at the first.
      */
-    private void sortItemsByDate(){
-        if(rooms.size() > 1){
+    private void sortItemsByDate() {
+        if (rooms.size() > 1) {
             Collections.sort(rooms, new Comparator<RoomItem>() {
                 public int compare(RoomItem r1, RoomItem r2) {
                     return r2.compareTo(r1);

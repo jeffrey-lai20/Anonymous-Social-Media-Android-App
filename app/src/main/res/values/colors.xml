@@ -29,4 +29,6 @@
     <color name="colorDarkGrey">#abaaaa</color>
     <color name="colorWhite">#ffffff</color>
     <color name="colorDarkGreen">#02bf1f</color>
+    <color name="room_msg_background">#f7f7f7</color>
+    <color name="room_send_background">#54fcff</color>
 </resources>
