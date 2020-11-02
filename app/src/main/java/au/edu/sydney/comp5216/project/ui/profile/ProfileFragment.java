@@ -1,12 +1,15 @@
 package au.edu.sydney.comp5216.project.ui.profile;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,27 +23,35 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import au.edu.sydney.comp5216.project.LoginActivity;
+import au.edu.sydney.comp5216.project.MainActivity;
 import au.edu.sydney.comp5216.project.R;
 import au.edu.sydney.comp5216.project.ui.moment.ListViewAdaptor;
 import au.edu.sydney.comp5216.project.ui.moment.MomentViewModel;
 import au.edu.sydney.comp5216.project.ui.post.Post;
+import au.edu.sydney.comp5216.project.MarshmallowPermission;
+
 
 //public class ProfileFragment extends Fragment{
 //
@@ -118,6 +129,16 @@ public class ProfileFragment extends Fragment{
     private CountDownLatch doneSignal;
     private String userId;
     private FirebaseUser firebaseUser;
+    private Button  changePicture, loadPhoto;
+    private Uri filePath;
+    FirebaseStorage storage;
+    StorageReference storageReference;
+    public String photoFileName = "photo.jpg";
+    private File file;
+    private ImageView ivPreview;
+    private static final int MY_PERMISSIONS_REQUEST_READ_PHOTOS = 102;
+
+//    MarshmallowPermission marshmallowPermission = new MarshmallowPermission(this);
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -131,6 +152,35 @@ public class ProfileFragment extends Fragment{
                 startActivity(intent);
             }
         });
+
+        //get firebase auth instance
+        auth = FirebaseAuth.getInstance();
+        changePicture = (Button) root.findViewById(R.id.changePicture);
+        loadPhoto = (Button) root.findViewById(R.id.loadphoto);
+        ivPreview = (ImageView) root.findViewById(R.id.photopreview);
+
+        Uri uri = auth.getCurrentUser().getPhotoUrl();
+        System.out.println(uri);
+        Glide.with(ivPreview.getContext())
+                .load(uri)
+                .into(ivPreview);
+
+        loadPhoto.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+//                if (!marshmallowPermission.checkPermissionForReadfiles()) {
+//                    marshmallowPermission.requestPermissionForReadfiles();
+//                } else {
+                    // Create intent for picking a photo from the gallery
+                    Intent intent = new Intent(Intent.ACTION_PICK,
+                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+
+                    // Bring up gallery to select a photo
+                    startActivityForResult(intent, MY_PERMISSIONS_REQUEST_READ_PHOTOS);
+//                 }
+            }
+        });
+
+
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         userId = firebaseUser.getDisplayName();
         mRecyclerView = (RecyclerView) root.findViewById(R.id.list_profile);
@@ -142,6 +192,44 @@ public class ProfileFragment extends Fragment{
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setAdapter(mAdapter);
         return root;
+    }
+
+    public void onLoadPhotoClick(View view) {
+
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == MY_PERMISSIONS_REQUEST_READ_PHOTOS) {
+            if (resultCode == -1) {
+                System.out.println("YEAH");
+                Uri photoUri = data.getData();
+                FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+
+                UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                        .setPhotoUri(photoUri)
+                        .build();
+
+                auth.getCurrentUser().updateProfile(profileUpdates);
+
+                firebaseUser.updateProfile(profileUpdates)
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if (task.isSuccessful()) {
+                                    Log.d("TAG", "User profile updated.");
+                                }
+                            }
+                        });
+
+                Glide.with(ivPreview.getContext())
+                        .load(photoUri)
+                        .into(ivPreview);
+            }
+        }
     }
 
     public void getpost(final ArrayList<String> group){

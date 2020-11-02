@@ -1,6 +1,12 @@
 package au.edu.sydney.comp5216.project.ui.moment;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -8,11 +14,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -29,6 +37,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
@@ -41,6 +50,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.io.File;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -57,14 +67,17 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
     private ChildViewAdaptor mAdapter;
     public List<Reply> replies = new ArrayList<>();
     public List<ChildViewAdaptor> adapters = new ArrayList<>();
+    public Integer mExpandedPosition = -1;
 
     public class MyViewHolder extends RecyclerView.ViewHolder{
         public TextView id,content, likes_count;
-        public ImageView imageView;
+        public ImageView imageView,picture;
         public ToggleButton btn_like;
         public RecyclerView child_view;
         public ImageButton btn_reply;
-        public EditText text_reply;
+        public TextInputLayout text_reply;
+        //public ProgressBar ic_loading;
+
 
 
         public MyViewHolder(View view){
@@ -76,7 +89,9 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
             btn_like = (ToggleButton) view.findViewById(R.id.btn_likes);
             child_view = (RecyclerView) view.findViewById(R.id.childrecyclerview);
             btn_reply = (ImageButton) view.findViewById(R.id.btn_reply);
-            text_reply = (EditText) view.findViewById(R.id.text_reply);
+            text_reply = (TextInputLayout) view.findViewById(R.id.text_reply);
+            picture = (ImageView)view.findViewById(R.id.image_user);
+            //ic_loading = (ProgressBar)view.findViewById(R.id.ic_loading);
         }
     }
 
@@ -96,22 +111,56 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
     @Override
     public void onBindViewHolder(final MyViewHolder holder, final int position) {
         final Post post = mDataList.get(position);
-
+        final boolean isExpanded = position==mExpandedPosition;
+        StorageReference storageReference = FirebaseStorage.getInstance().getReference();
+        StorageReference pathpicture = storageReference.child("default.png");
+        Glide.with(context)
+                .load(pathpicture)
+                .apply(new RequestOptions().override(50, 50))
+                .into(holder.picture);
+            holder.child_view.setVisibility(isExpanded?View.VISIBLE:View.GONE);
+        holder.btn_reply.setVisibility(isExpanded?View.VISIBLE:View.GONE);
+        holder.text_reply.setVisibility(isExpanded?View.VISIBLE:View.GONE);
+        //holder.ic_loading.setVisibility(isExpanded?View.VISIBLE:View.GONE);
+        mAdapter = new ChildViewAdaptor(replies);
+        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(context.getApplicationContext());
+        holder.child_view.setLayoutManager(mLayoutManager);
+        holder.child_view.setItemAnimator(new DefaultItemAnimator());
+        holder.child_view.setHasFixedSize(true);
+        holder.child_view.setAdapter(mAdapter);
+        holder.itemView.setActivated(isExpanded);
         holder.id.setText(Integer.toString(post.getid()));
         holder.content.setText(post.getcontent());
         holder.likes_count.setText(Integer.toString(post.getlikes()));
         holder.btn_like.setOnCheckedChangeListener(null);
         holder.btn_like.setChecked(post.like);
+        holder.imageView.setImageResource(android.R.color.transparent);
+
         // Show image if the post contains image
         if (TextUtils.isEmpty(post.getimagepath())) {
-
+            holder.imageView.getLayoutParams().height = 0;
         }else{
-            StorageReference storageReference = FirebaseStorage.getInstance().getReference();
-            StorageReference pathReference = storageReference.child(post.getimagepath());
+            holder.imageView.getLayoutParams().height = 600;
+            final StorageReference pathReference = storageReference.child(post.getimagepath());
             Glide.with(context)
                     .load(pathReference)
-                    .apply(new RequestOptions().override(300, 300))
+                    .centerCrop()
                     .into(holder.imageView);
+            holder.imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Dialog dialog = new Dialog(context);
+                    dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                    dialog.setContentView(R.layout.image_viewer);
+                    ImageView image = (ImageView) dialog.findViewById(R.id.image_view);
+                    image.setScaleType(ImageView.ScaleType.FIT_XY);
+                    Glide.with(context)
+                            .load(pathReference)
+                            .into(image);
+                    dialog.getWindow().setBackgroundDrawable(null);
+                    dialog.show();
+                }
+            });
         }
 
         // Likes function
@@ -137,7 +186,19 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getreply(post, holder);
+                mExpandedPosition = isExpanded ? -1:position;
+                notifyItemChanged(position);
+                replies.clear();
+                mAdapter.notifyItemChanged(position);
+                if(isExpanded == false){
+                    Handler handler = new Handler();
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            getreply(post, holder, position);
+                        }
+                    }, 300);
+                }
             }
         });
 
@@ -147,7 +208,7 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
             public void onClick(View v) {
                 final InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                String value = holder.text_reply.getText().toString();
+                String value = holder.text_reply.getEditText().getText().toString();
                 if(TextUtils.isEmpty(value)){
                     Toast.makeText(context,"Please type something",Toast.LENGTH_SHORT).show();
                 }else{
@@ -174,9 +235,9 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
     }
 
     // Get replies on db
-    public void getreply(Post post,MyViewHolder holder){
+    public void getreply(Post post,MyViewHolder holder,Integer position){
         final MyViewHolder holdera = holder;
-        replies = new ArrayList<>();
+        final Integer myposition = position;
         Query reply = db.collection("replies").whereEqualTo("reply_to_id",post.getpid());
         reply.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -186,14 +247,13 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
                         Reply reply = new Reply(document.getLong("id").intValue(),document.getString("content"));
                         replies.add(reply);
                     }
-                    mAdapter = new ChildViewAdaptor(replies);
-                    RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(context.getApplicationContext());
-                    holdera.child_view.setLayoutManager(mLayoutManager);
-                    holdera.child_view.setItemAnimator(new DefaultItemAnimator());
-                    holdera.child_view.setHasFixedSize(true);
-                    holdera.child_view.setAdapter(mAdapter);
+                    if(replies.size() != 0){
+                        mAdapter.notifyDataSetChanged();
+                        notifyItemChanged(myposition);
+                    }else{
+                        notifyItemChanged(myposition);
+                    }
                 } else {
-
                 }
             }
         });

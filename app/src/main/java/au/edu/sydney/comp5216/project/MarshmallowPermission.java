@@ -1,4 +1,4 @@
-package au.edu.sydney.comp5216.mediaaccess;
+package au.edu.sydney.comp5216.project;
 
 import android.Manifest;
 import android.app.Activity;

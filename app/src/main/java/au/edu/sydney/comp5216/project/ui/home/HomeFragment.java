@@ -11,6 +11,7 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
+import android.widget.SearchView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -36,6 +37,12 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+<<<<<<< HEAD
+=======
+import java.util.TimeZone;
+import java.util.Timer;
+import java.util.TimerTask;
+>>>>>>> 9d1f382ee2d2f0f9cb26f4a0672a99057414e714
 
 public class HomeFragment extends Fragment implements View.OnClickListener {
 
@@ -52,6 +59,8 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     private ImageButton addNewRoomButton;
     private ImageButton searchRoomButton;
 
+    private SearchView searchView;
+    private CharSequence query;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -98,13 +107,35 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         //set up click listener for add new room button
         addNewRoomButton = (ImageButton) root.findViewById(R.id.btn_add_new_room);
         addNewRoomButton.setOnClickListener(this);
-        //set up click listener for search room button
-        searchRoomButton = (ImageButton) root.findViewById(R.id.btn_search_room);
-        searchRoomButton.setOnClickListener(this);
+//        //set up click listener for search room button
+//        searchRoomButton = (ImageButton) root.findViewById(R.id.btn_search_room);
+//        searchRoomButton.setOnClickListener(this);
 
+        searchView = (SearchView) root.findViewById(R.id.searchView); // inititate a search view
+        query = searchView.getQuery(); // get the query string currently in the text field
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                Timer timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                    }
+                }, 600); // 600ms delay before the timer executes the „run“ method from TimerTask
+                getRoomFromDB(newText);
+                return true;
+            }
+        });
         return root;
     }
 
+<<<<<<< HEAD
     private void updateRoomData(RoomItem clickedRoom) {
         //update room joined number and joined user
         int joinedUserNum = Integer.parseInt(clickedRoom.getJoinedUserNum());
@@ -129,6 +160,9 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                     "Update room failed! This user already in the list", Toast.LENGTH_SHORT).show();
         }
     }
+=======
+
+>>>>>>> 9d1f382ee2d2f0f9cb26f4a0672a99057414e714
 
     @Override
     public void onClick(View v) {
@@ -178,10 +212,9 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                 builder.show();
                 break;
 
-            case R.id.btn_search_room:
-
-
-                break;
+//            case R.id.btn_search_room:
+//                simpleSearchView.setVisibility(View.VISIBLE);
+//                break;
             default:
                 break;
         }
@@ -258,6 +291,54 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                         roomItem.setJoinedUserIDs(joinedUserIDs);
                         roomItem.setRoomCreatedTime(roomCreatedTime);
                         rooms.add(roomItem);
+                        sortItemsByDate();
+                        gridAdapter.notifyDataSetChanged();
+                        Toast.makeText(getActivity(),
+                                "Get Documents Success!", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(getActivity(),
+                            "Get Documents Failed!", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private void getRoomFromDB(final String query){
+        if (query.equals(""))  {
+            rooms.clear();
+            RoomItem defaultRoom = new RoomItem(userId,"Welcome to 0204!");
+            defaultRoom.setRoomCreatedTime("2020-1-1 00:00:01");
+            rooms.add(defaultRoom);
+            getRoomFromDB();
+            return;
+        }
+        rooms.clear();
+        Toast.makeText(getActivity(),
+                "Start Get Documents!", Toast.LENGTH_SHORT).show();
+        CollectionReference collectionRef = fireStore.collection("rooms");
+        collectionRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    List<DocumentSnapshot> myListOfDocuments = task.getResult().getDocuments();
+                    for(DocumentSnapshot document : myListOfDocuments){
+                        Map<String, Object> room = document.getData();
+                        String roomId = room.get("room_id").toString();
+                        String ownerId = room.get("owner_id").toString();
+                        String roomName = room.get("room_name").toString();
+                        String joinedUserNum = room.get("joined_num").toString();
+                        ArrayList<String> joinedUserIDs
+                                =  (ArrayList<String>) document.get("joined_user_list");
+                        String roomCreatedTime = room.get("room_created_time").toString();
+                        RoomItem roomItem = new RoomItem(ownerId, roomName);
+                        roomItem.setRoomId(roomId);
+                        roomItem.setJoinedUserNum(joinedUserNum);
+                        roomItem.setJoinedUserIDs(joinedUserIDs);
+                        roomItem.setRoomCreatedTime(roomCreatedTime);
+                        if (roomName.contains(query)) {
+                            rooms.add(roomItem);
+                        }
                         sortItemsByDate();
                         gridAdapter.notifyDataSetChanged();
                         Toast.makeText(getActivity(),

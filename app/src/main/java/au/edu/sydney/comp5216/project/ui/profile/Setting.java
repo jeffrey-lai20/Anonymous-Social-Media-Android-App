@@ -57,7 +57,8 @@ import java.util.UUID;
 import au.edu.sydney.comp5216.project.LoginActivity;
 import au.edu.sydney.comp5216.project.R;
 import au.edu.sydney.comp5216.project.ResetPasswordActivity;
-import au.edu.sydney.comp5216.mediaaccess.MarshmallowPermission;
+import au.edu.sydney.comp5216.project.MarshmallowPermission;
+
 public class Setting extends AppCompatActivity {
 
     private FirebaseAuth.AuthStateListener authListener;
@@ -209,6 +210,7 @@ public class Setting extends AppCompatActivity {
     }
 
     public void onLoadPhotoClick(View view) {
+
         if (!marshmallowPermission.checkPermissionForReadfiles()) {
             marshmallowPermission.requestPermissionForReadfiles();
         } else {

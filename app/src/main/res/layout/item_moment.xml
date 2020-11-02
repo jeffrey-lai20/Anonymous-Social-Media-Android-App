@@ -4,17 +4,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/grid_view_item_border">
+    android:background="@drawable/grid_view_item_border2">
 
     <ImageView
         android:id="@+id/image_post"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
+        android:adjustViewBounds="true"
+        app:layout_constraintBottom_toTopOf="@+id/post_content"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/post_content"
+        app:layout_constraintTop_toBottomOf="@+id/cardView"
         tools:srcCompat="@tools:sample/avatars" />
 
     <TextView
@@ -23,50 +24,52 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
         android:text="Id"
-        app:layout_constraintBottom_toTopOf="@+id/post_content"
+        app:layout_constraintBottom_toBottomOf="@+id/cardView"
         app:layout_constraintStart_toEndOf="@+id/cardView"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/cardView" />
 
     <TextView
         android:id="@+id/post_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="90dp"
-        android:layout_marginTop="80dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="10dp"
         android:text="Content"
+        app:layout_constraintBottom_toTopOf="@+id/btn_likes"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/image_post" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cardView"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_marginStart="20dp"
+        android:layout_marginTop="10dp"
         app:cardCornerRadius="25dp"
         app:cardPreventCornerOverlap="false"
-        app:layout_constraintBottom_toTopOf="@+id/post_content"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
             android:id="@+id/image_user"
-            android:layout_width="50dp"
-            android:layout_height="50dp" />
+            android:layout_width="40dp"
+            android:layout_height="40dp" />
     </androidx.cardview.widget.CardView>
 
     <ToggleButton
         android:id="@+id/btn_likes"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
         android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
         android:background="@drawable/ic_toggle"
         android:checked="false"
         android:textOff=''
         android:textOn=''
-        app:layout_constraintBottom_toTopOf="@+id/childrecyclerview"
+        app:layout_constraintBottom_toTopOf="@+id/space"
         app:layout_constraintEnd_toStartOf="@+id/likes_count"
-        app:layout_constraintTop_toBottomOf="@+id/image_post" />
+        app:layout_constraintTop_toBottomOf="@+id/post_content" />
 
     <TextView
         android:id="@+id/likes_count"
@@ -81,39 +84,50 @@
         android:id="@+id/childrecyclerview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
+        android:layout_marginStart="20dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/image_post" />
+        app:layout_constraintTop_toBottomOf="@+id/space"
+        />
 
-    <EditText
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/text_reply"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginStart="20dp"
         android:layout_marginEnd="10dp"
         android:layout_marginBottom="10dp"
-        android:ems="10"
-        android:gravity="start|top"
-        android:inputType="textMultiLine"
+        android:hint="Say something!"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/btn_reply"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/childrecyclerview" />
+        app:layout_constraintTop_toBottomOf="@+id/childrecyclerview">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </com.google.android.material.textfield.TextInputLayout>
+    />
 
     <ImageButton
         android:id="@+id/btn_reply"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
         android:layout_marginEnd="10dp"
-        android:layout_marginBottom="10dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:background="@null"
+        app:layout_constraintBottom_toBottomOf="@+id/text_reply"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/childrecyclerview"
+        app:layout_constraintTop_toTopOf="@+id/text_reply"
         app:srcCompat="@android:drawable/ic_menu_send" />
+
+    <Space
+        android:id="@+id/space"
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        app:layout_constraintBottom_toTopOf="@+id/childrecyclerview"
+        app:layout_constraintTop_toBottomOf="@+id/btn_likes"
+        tools:layout_editor_absoluteX="237dp" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

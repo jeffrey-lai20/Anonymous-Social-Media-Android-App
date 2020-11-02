@@ -1,6 +1,8 @@
 package au.edu.sydney.comp5216.project.ui.post;
 
 
+import android.net.Uri;
+
 import com.google.firebase.firestore.FieldValue;
 
 import java.util.ArrayList;
@@ -14,7 +16,9 @@ public class Post {
     public String imagepath;
     public Integer likes;
     public String pid;
+    public String user_picture_path;
     public boolean like = false;
+    public boolean expanded = false;
 
     public Post() {
     }
@@ -52,11 +56,23 @@ public class Post {
         return this.pid;
     }
 
+    public String getUser_picture_path(){
+        return this.user_picture_path;
+    }
+
     public void setlikes_account(Integer likes){
         this.likes = likes;
     }
 
     public void setlike(boolean like){
         this.like = like;
+    }
+
+    public boolean isExpanded(){
+        return this.expanded;
+    }
+
+    public void setUser_picture_path(String path){
+        this.user_picture_path = path;
     }
 }

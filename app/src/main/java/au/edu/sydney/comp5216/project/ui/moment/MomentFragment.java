@@ -44,7 +44,7 @@ public class MomentFragment extends Fragment{
     private MomentViewModel momentViewModel;
     private RecyclerView mRecyclerView;
     private ListViewAdaptor mAdapter;
-    private List<Post> mDataList = new ArrayList<>();
+    private List<Post> mDataList;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private String TAG = "Post";
     private Post post;
@@ -56,6 +56,7 @@ public class MomentFragment extends Fragment{
                 ViewModelProviders.of(this).get(MomentViewModel.class);
         View root = inflater.inflate(R.layout.fragment_moment, container, false);
         mRecyclerView = (RecyclerView) root.findViewById(R.id.list_moment);
+        mDataList = new ArrayList<>();
         getlist_like();
         mAdapter = new ListViewAdaptor(mDataList);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
@@ -80,8 +81,9 @@ public class MomentFragment extends Fragment{
                                     post.setlike(true);
                                 }
                                 mDataList.add(post);
+                                //getprofile_picture(post,task.getResult().size());
                             }
-                            mAdapter.notifyDataSetChanged();
+                            getpicture();
                         } else {
                             Log.d(TAG, "Error getting documents: ", task.getException());
                         }
@@ -110,6 +112,52 @@ public class MomentFragment extends Fragment{
             }
         });
     }
+
+    public void getprofile_picture(final Post post, final Integer length){
+        DocumentReference docref = db.collection("users").document(post.getid().toString());
+        docref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        post.setUser_picture_path(document.getString("photo"));
+                        mDataList.add(post);
+                        if(mDataList.size() == length){
+                            mAdapter.notifyDataSetChanged();
+                        }
+                    } else {
+
+                    }
+                } else {
+                    Toast.makeText(getActivity(),"Failed. Please check your network connection",Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    public void getpicture(){
+        for(final Post post:mDataList){
+            DocumentReference docref = db.collection("users").document(post.getid().toString());
+            docref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            post.setUser_picture_path(document.getString("photo"));
+                        } else {
+
+                        }
+                    } else {
+                        Toast.makeText(getActivity(),"Failed. Please check your network connection",Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
+        mAdapter.notifyDataSetChanged();
+    }
+
 }
 
 

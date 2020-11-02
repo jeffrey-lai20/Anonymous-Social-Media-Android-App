@@ -13,17 +13,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
 import au.edu.sydney.comp5216.project.R;
-import au.edu.sydney.comp5216.project.entity.MsgData;
+import au.edu.sydney.comp5216.project.entity.MessageInfo;
 import au.edu.sydney.comp5216.project.ui.chat.ChatDetailActivity;
-import au.edu.sydney.comp5216.project.utils.HelpUtils;
 
 
 public class ChatDetailAdapter extends RecyclerView.Adapter<ChatDetailAdapter.MsgViewHolder> {
 
-    private List<MsgData> listData;
+    private List<MessageInfo> listData;
     private Context context;
 
-    public ChatDetailAdapter(Context context, List<MsgData> listData) {
+    public ChatDetailAdapter(Context context, List<MessageInfo> listData) {
         this.context = context;
         this.listData = listData;
     }
@@ -36,44 +35,31 @@ public class ChatDetailAdapter extends RecyclerView.Adapter<ChatDetailAdapter.Ms
 
     @Override
     public void onBindViewHolder(MsgViewHolder holder, int position) {
-        MsgData currentMsgData = listData.get(position);
-        MsgData preMsgData = null;
+        MessageInfo currentMsgData = listData.get(position);
+        MessageInfo preMsgData = null;
         if (position >= 1)
             preMsgData = listData.get(position - 1);
-        switch (currentMsgData.getMsgType()) {
+        switch (currentMsgData.msgType) {
             case ChatDetailActivity.TYPE_RECEIVER_MSG:
                 initTimeStamp(holder, currentMsgData, preMsgData);
                 holder.senderLayout.setVisibility(View.GONE);
                 holder.receiverLayout.setVisibility(View.VISIBLE);
-                holder.receiveMsg.setText(currentMsgData.getMsg());
-                holder.receiver_profile.setImageResource(currentMsgData.getProfile_res());
+                holder.receiveMsg.setText(currentMsgData.msg);
+                holder.receiver_profile.setImageResource(currentMsgData.avatarRes);
                 break;
-
 
             case ChatDetailActivity.TYPE_SENDER_MSG:
                 initTimeStamp(holder, currentMsgData, preMsgData);
                 holder.senderLayout.setVisibility(View.VISIBLE);
                 holder.receiverLayout.setVisibility(View.GONE);
-                holder.sendMsg.setText(currentMsgData.getMsg());
-                holder.send_profile.setImageResource(currentMsgData.getProfile_res());
+                holder.sendMsg.setText(currentMsgData.msg);
+                holder.send_profile.setImageResource(currentMsgData.avatarRes);
                 break;
         }
     }
 
-    private void initTimeStamp(MsgViewHolder holder, MsgData currentMsgData, MsgData preMsgData) {
-        String showTime;
-        if (preMsgData == null) {
-            showTime = HelpUtils.calculateShowTime(HelpUtils.getCurrentMillisTime(), currentMsgData.getTimeStamp());
-        } else {
-            showTime = HelpUtils.calculateShowTime(currentMsgData.getTimeStamp(), preMsgData.getTimeStamp());
-        }
-        if (showTime != null) {
-            holder.timeStamp.setVisibility(View.VISIBLE);
-            holder.timeStamp.setText(showTime);
-        } else {
-            holder.timeStamp.setVisibility(View.GONE);
-        }
-
+    private void initTimeStamp(MsgViewHolder holder, MessageInfo currentMsgData, MessageInfo preMsgData) {
+        holder.timeStamp.setVisibility(View.GONE);
     }
 
     @Override
