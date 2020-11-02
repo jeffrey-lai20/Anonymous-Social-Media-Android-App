@@ -30,12 +30,13 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(navView, navController);
 //        startService(new Intent(this,MessageService.class));
-//        navView.postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                DBHelper.getInstance().updateUserInfo();
-//            }
-//        },1000);
+
+        navView.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                DBHelper.getInstance().updateUserInfo();
+            }
+        },1000);
     }
 
 }

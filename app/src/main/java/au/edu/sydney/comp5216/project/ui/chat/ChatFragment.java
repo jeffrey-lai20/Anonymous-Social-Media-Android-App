@@ -13,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SearchView;
@@ -138,12 +139,13 @@ public class ChatFragment extends Fragment {
         super.onCreateOptionsMenu(menu, inflater);
     }
 
+
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.add_friend:
-                startActivity(new Intent(getActivity(), AddFriendsActivity.class));
-                break;
+        if (item.getItemId() == R.id.add_friend) {
+            startActivity(new Intent(getActivity(), AddFriendsActivity.class));
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }

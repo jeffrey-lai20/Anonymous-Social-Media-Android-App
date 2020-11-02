@@ -5,7 +5,10 @@ apply plugin: 'kotlin-android'
 android {
     compileSdkVersion 29
     buildToolsVersion "30.0.2"
-
+    buildFeatures{
+        dataBinding = true
+        viewBinding = true
+    }
     defaultConfig {
         applicationId "au.edu.sydney.comp5216.project"
         minSdkVersion 26
@@ -58,4 +61,5 @@ dependencies {
     annotationProcessor 'androidx.annotation:annotation:1.1.0'
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
     implementation "androidx.coordinatorlayout:coordinatorlayout:1.1.0"
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 }
