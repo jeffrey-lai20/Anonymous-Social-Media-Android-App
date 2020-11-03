@@ -13,6 +13,8 @@ public class RoomItem implements Comparable<RoomItem> {
     private String ownerId;
     private String roomName;
     private String joinedUserNum;
+    private String key;
+
     private ArrayList<String> joinedUserIDs;
     private String roomCreatedTime;
 
@@ -49,6 +51,10 @@ public class RoomItem implements Comparable<RoomItem> {
     public void setRoomName(String roomName) {
         this.roomName = roomName;
     }
+
+    public String getKey() { return key; }
+
+    public void setKey(String key) { this.key = key; }
 
     public String getJoinedUserNum() {
         return joinedUserNum;

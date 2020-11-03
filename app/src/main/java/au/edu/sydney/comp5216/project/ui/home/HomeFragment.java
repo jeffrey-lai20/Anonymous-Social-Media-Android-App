@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,17 +16,24 @@ import android.widget.SearchView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import au.edu.sydney.comp5216.project.GridAdapter;
 import au.edu.sydney.comp5216.project.R;
 import au.edu.sydney.comp5216.project.RoomChat.RoomChatActivity;
+import au.edu.sydney.comp5216.project.RoomChat.RoomMessage;
 import au.edu.sydney.comp5216.project.RoomItem;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -53,6 +61,8 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
 
     private FirebaseUser firebaseUser;
     private FirebaseFirestore fireStore;
+    FirebaseDatabase database;
+    DatabaseReference roomdb;
 
     private String userId;
     private String roomName = "";
@@ -63,6 +73,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     private SearchView searchView;
     private CharSequence query;
 
+    int count = 0 ;
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
@@ -70,6 +81,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
 
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         fireStore = FirebaseFirestore.getInstance();
+        database = FirebaseDatabase.getInstance();
 
         rooms = new ArrayList<RoomItem>();
 
@@ -108,9 +120,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         //set up click listener for add new room button
         addNewRoomButton = (ImageButton) root.findViewById(R.id.btn_add_new_room);
         addNewRoomButton.setOnClickListener(this);
-//        //set up click listener for search room button
-//        searchRoomButton = (ImageButton) root.findViewById(R.id.btn_search_room);
-//        searchRoomButton.setOnClickListener(this);
 
         searchView = (SearchView) root.findViewById(R.id.searchView); // inititate a search view
         query = searchView.getQuery(); // get the query string currently in the text field
@@ -133,7 +142,27 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                 return true;
             }
         });
+        //content();
         return root;
+    }
+
+    public void content(){
+        count++;
+        Toast.makeText(getActivity(),
+                "count: " + count, Toast.LENGTH_SHORT).show();
+
+        refresh(3000); // 1 sec
+    }
+
+    private void refresh(int milliseconds){
+        final Handler handler = new Handler();
+        final Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                content();
+            }
+        };
+        handler.postDelayed(runnable, milliseconds);
     }
 
 
@@ -185,7 +214,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                         boolean checkBoolean = inputCheck(inputName);
                         if (checkBoolean) {
                             //add new room to grid view
-                            RoomItem roomItem = new RoomItem(userId, inputName);
+                            RoomItem roomItem= new RoomItem(userId, inputName);
                             ArrayList<String> joinedUserIDs = new ArrayList<String>();
                             joinedUserIDs.add(userId);
                             roomItem.setOwnerId(userId);
@@ -211,9 +240,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                 builder.show();
                 break;
 
-//            case R.id.btn_search_room:
-//                simpleSearchView.setVisibility(View.VISIBLE);
-//                break;
             default:
                 break;
         }
@@ -253,6 +279,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     }
 
     private void saveRoomToDB(RoomItem roomItem) {
+
         CollectionReference rooms = fireStore.collection("rooms");
         // get all room info
         Map<String, Object> room = new HashMap<>();
