@@ -49,8 +49,8 @@ import au.edu.sydney.comp5216.project.R;
 public class PostFragment extends Fragment {
 
     private PostViewModel PostViewModel;
-    private Button postbtn;
-    private Button addimagebtn;
+    private ImageButton postbtn;
+    private ImageButton addimagebtn;
     private ImageButton removebtn;
     private ImageView iPreview;
     private EditText text;
