@@ -37,6 +37,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -76,6 +77,7 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
         public RecyclerView child_view;
         public ImageButton btn_reply;
         public TextInputLayout text_reply;
+        public TextInputEditText editText_reply;
         //public ProgressBar ic_loading;
 
 
@@ -91,6 +93,7 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
             btn_reply = (ImageButton) view.findViewById(R.id.btn_reply);
             text_reply = (TextInputLayout) view.findViewById(R.id.text_reply);
             picture = (ImageView)view.findViewById(R.id.image_user);
+            editText_reply = (TextInputEditText) view.findViewById(R.id.edittext_reply);
             //ic_loading = (ProgressBar)view.findViewById(R.id.ic_loading);
         }
     }
@@ -188,9 +191,9 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
             public void onClick(View v) {
                 mExpandedPosition = isExpanded ? -1:position;
                 notifyItemChanged(position);
-                replies.clear();
-                mAdapter.notifyItemChanged(position);
                 if(isExpanded == false){
+                    replies.clear();
+                    mAdapter.notifyItemChanged(position);
                     Handler handler = new Handler();
                     handler.postDelayed(new Runnable() {
                         @Override
@@ -209,6 +212,7 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
                 final InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                 String value = holder.text_reply.getEditText().getText().toString();
+                holder.editText_reply.setText("");
                 if(TextUtils.isEmpty(value)){
                     Toast.makeText(context,"Please type something",Toast.LENGTH_SHORT).show();
                 }else{
