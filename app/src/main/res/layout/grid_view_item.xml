@@ -4,9 +4,6 @@
     android:layout_height="150dp"
     android:background="@drawable/grid_view_item_border">
 
-<!--    <androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">-->
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -19,18 +16,20 @@
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
                 android:gravity="center"
-                android:textColor="#000"
-                android:textSize="15dp" />
+                android:textColor="#FF000000"
+                android:text="Default room name"
+                android:textStyle="bold"
+                android:textSize="18dp" />
 
             <TextView
                 android:id="@+id/gv_textView_num"
                 android:layout_width="match_parent"
                 android:layout_height="20dp"
                 android:gravity="center_horizontal"
+                android:textColor="#FF000000"
+                android:textStyle="bold"
                 android:text="6"
-                android:textColor="#000"
-                android:textSize="15dp" />
+                android:textSize="18dp" />
         </LinearLayout>
-    <!--</androidx.cardview.widget.CardView>>-->
 
 </RelativeLayout>

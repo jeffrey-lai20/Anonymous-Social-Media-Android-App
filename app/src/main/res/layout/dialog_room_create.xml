@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding = "15dp"
+    android:orientation="vertical"
+    android:background="#e5f7f7">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Please enter your room name: "
+        android:textSize="20dp"
+        android:textAlignment="viewStart"/>
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Room Name..."
+        android:textSize="20dp"
+        android:layout_marginTop="10dp"
+        android:id="@+id/et_room_name"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp">
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#63d2c0"
+            android:text="Cancel"
+            android:textColor="@color/white"
+            android:textSize="15dp"
+            android:layout_weight="1"
+            android:id="@+id/btn_cancel"
+            android:layout_marginRight="5dp"/>
+
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#63d2c0"
+            android:text="Ok"
+            android:textColor="@color/white"
+            android:textSize="15dp"
+            android:layout_weight="1"
+            android:id="@+id/btn_ok"
+            android:layout_marginLeft="5dp"/>
+
+    </LinearLayout>
+
+</LinearLayout>

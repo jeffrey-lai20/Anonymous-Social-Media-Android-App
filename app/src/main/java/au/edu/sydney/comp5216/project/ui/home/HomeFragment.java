@@ -5,10 +5,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
@@ -57,7 +59,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
 
     private GridView gridView;
     private GridAdapter gridAdapter;
-    private ArrayList<RoomItem> rooms;
+    static private ArrayList<RoomItem> rooms = null;
 
     private FirebaseUser firebaseUser;
     private FirebaseFirestore fireStore;
@@ -142,29 +144,8 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                 return true;
             }
         });
-        //content();
         return root;
     }
-
-    public void content(){
-        count++;
-        Toast.makeText(getActivity(),
-                "count: " + count, Toast.LENGTH_SHORT).show();
-
-        refresh(3000); // 1 sec
-    }
-
-    private void refresh(int milliseconds){
-        final Handler handler = new Handler();
-        final Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                content();
-            }
-        };
-        handler.postDelayed(runnable, milliseconds);
-    }
-
 
     private void updateRoomData(RoomItem clickedRoom) {
         //update room joined number and joined user
@@ -199,22 +180,36 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
             case R.id.btn_add_new_room:
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle("Room Name");
-                builder.setMessage("Please enter your room name here:");
-
+                //builder.setTitle("Room Name");
+                //builder.setMessage("Please enter your room name here:");
+                View dialogV = getLayoutInflater().inflate(R.layout.dialog_room_create,null);
                 //set up the input
-                final EditText roomNameInput = new EditText(getActivity());
-                builder.setView(roomNameInput);
+                //final EditText roomNameInput = new EditText(getActivity());
+                final EditText roomNameInput = (EditText) dialogV.findViewById(R.id.et_room_name);
+                //roomNameInput.setInputType(InputType.TYPE_CLASS_TEXT);
+                Button btn_cancel = (Button) dialogV.findViewById(R.id.btn_cancel);
+                Button btn_ok = (Button) dialogV.findViewById(R.id.btn_ok);
+                builder.setView(dialogV);
 
-                //set up the buttons
-                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                final AlertDialog alertDialog = builder.create();
+                //builder.setCanceledOnTouchOutside(false);
+
+                btn_cancel.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                    public void onClick(View v) {
+                        if (alertDialog.isShowing())
+                            alertDialog.dismiss();
+                    }
+                });
+
+                btn_ok.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
                         String inputName = roomNameInput.getText().toString();
                         boolean checkBoolean = inputCheck(inputName);
                         if (checkBoolean) {
                             //add new room to grid view
-                            RoomItem roomItem= new RoomItem(userId, inputName);
+                            RoomItem roomItem = new RoomItem(userId, inputName);
                             ArrayList<String> joinedUserIDs = new ArrayList<String>();
                             joinedUserIDs.add(userId);
                             roomItem.setOwnerId(userId);
@@ -231,15 +226,8 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                         }
                     }
                 });
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-                builder.show();
+                alertDialog.show();
                 break;
-
             default:
                 break;
         }
@@ -258,7 +246,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                     });
             builder.create().show();
             return false;
-        } else if (input.toCharArray().length > 50) {
+        } else if (input.toCharArray().length > 38) {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle(R.string.room_name_dialog_long_title)
                     .setMessage(R.string.room_name_dialog_long_msg)
@@ -317,17 +305,42 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                         roomItem.setJoinedUserIDs(joinedUserIDs);
                         roomItem.setRoomCreatedTime(roomCreatedTime);
                         rooms.add(roomItem);
-                        sortItemsByDate();
-                        gridAdapter.notifyDataSetChanged();
-                        Toast.makeText(getActivity(),
-                                "Get Documents Success!", Toast.LENGTH_SHORT).show();
                     }
+                    for(int i = 0; i < rooms.size() - 1; i++){
+                        for(int j = i + 1; j < rooms.size(); j++){
+                            if(rooms.get(i).getRoomId().equals(rooms.get(j).getRoomId())){
+                                rooms.remove(j);
+                                continue;
+                            }
+                        }
+                    }
+                    sortItemsByDate();
+                    gridAdapter.notifyDataSetChanged();
+                    Toast.makeText(getActivity(),
+                            "Get Documents Success!", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(getActivity(),
                             "Get Documents Failed!", Toast.LENGTH_SHORT).show();
                 }
             }
         });
+        //keep refreshing
+        count++;
+        Toast.makeText(getActivity(),
+                "count: " + count, Toast.LENGTH_SHORT).show();
+
+        //refresh(1000); // 1 sec
+    }
+
+    private void refresh(int milliseconds){
+        final Handler handler = new Handler();
+        final Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                getRoomFromDB();
+            }
+        };
+        handler.postDelayed(runnable, milliseconds);
     }
 
     private void getRoomFromDB(final String query){
@@ -376,6 +389,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                 }
             }
         });
+
     }
 
     /**

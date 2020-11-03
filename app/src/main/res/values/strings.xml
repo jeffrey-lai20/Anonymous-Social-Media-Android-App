@@ -39,7 +39,7 @@
     <string name="room_name_dialog_empty_title">Empty Alert</string>
     <string name="room_name_dialog_empty_msg">Your roon name can not be empty!</string>
     <string name="room_name_dialog_long_title">Overlong Alert</string>
-    <string name="room_name_dialog_long_msg">Your roon name is too long! No more than 50 characters.</string>
+    <string name="room_name_dialog_long_msg">Your roon name is too long!</string>
 
     <string name="btn_setting">Setting</string>
     <string name="layout_based">Setting</string>

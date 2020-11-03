@@ -64,7 +64,8 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
 
     FirebaseDatabase database;
     DatabaseReference messagedb;
-    RoomMessageAdapter messageAdapter;
+    //RoomMessageAdapter messageAdapter;
+    RoomMsgAdapter messageAdapter;
     List<RoomMessage> messages;
 
     RecyclerView rvMessage;
@@ -87,7 +88,8 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
 
         messages = new ArrayList<>();
         rvMessage.setLayoutManager(new LinearLayoutManager(RoomChatActivity.this));
-        messageAdapter = new RoomMessageAdapter(RoomChatActivity.this, messages, messagedb);
+        //messageAdapter = new RoomMessageAdapter(RoomChatActivity.this, messages, messagedb);
+        messageAdapter = new RoomMsgAdapter(RoomChatActivity.this, messages, messagedb);
         rvMessage.setAdapter(messageAdapter);
     }
 
@@ -339,7 +341,8 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
             }
         }*/
         rvMessage.setLayoutManager(new LinearLayoutManager(RoomChatActivity.this));
-        messageAdapter = new RoomMessageAdapter(RoomChatActivity.this, messages, messagedb);
+        //messageAdapter = new RoomMessageAdapter(RoomChatActivity.this, messages, messagedb);
+        messageAdapter = new RoomMsgAdapter(RoomChatActivity.this, messages, messagedb);
         rvMessage.setAdapter(messageAdapter);
     }
 
