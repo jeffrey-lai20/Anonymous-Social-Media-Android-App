@@ -217,7 +217,9 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
                     Toast.makeText(context,"Please type something",Toast.LENGTH_SHORT).show();
                 }else{
                     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                    writetodb(Integer.parseInt(user.getDisplayName()),value,post.getpid());
+                    writetodb(Integer.parseInt(user.getDisplayName()),value,post.getpid(),position);
+                    mExpandedPosition = isExpanded ? -1:position;
+                    notifyItemChanged(position);
                 }
             }
         });
@@ -239,7 +241,7 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
     }
 
     // Get replies on db
-    public void getreply(Post post,MyViewHolder holder,Integer position){
+    public void getreply(Post post, final MyViewHolder holder, Integer position){
         final MyViewHolder holdera = holder;
         final Integer myposition = position;
         Query reply = db.collection("replies").whereEqualTo("reply_to_id",post.getpid());
@@ -263,7 +265,7 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
         });
     }
 
-    private void writetodb(Integer id, String content, String pid){
+    private void writetodb(Integer id, String content, String pid, final Integer position){
         // Create post
         Map<String, Object> post = new HashMap<>();
         post.put("id", id);
@@ -279,6 +281,7 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
                     public void onSuccess(DocumentReference documentReference) {
                         Toast.makeText(context,"Successful!",Toast.LENGTH_SHORT).show();
                         Log.d("Post","Successful!");
+
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
