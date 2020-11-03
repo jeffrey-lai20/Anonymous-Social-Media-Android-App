@@ -4,15 +4,21 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimaryDark</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorPrimaryDark</item>
+
+        <item name="colorAccent">@color/colorBlack</item>
+        <item name="actionMenuTextColor">@color/colorBlack</item>
+        <item name="android:textColor">@color/colorBlack</item>
+        <item name="actionBarStyle">@style/Widget.AppTheme.ActionBar</item>
+        <item name="actionBarTheme">@style/ThemeOverlay.AppTheme.ActionBar</item>
+
 
         <!-- New MaterialComponents attributes. -->
-        <item name="colorPrimaryVariant">@color/colorPrimary</item>
-        <item name="colorSecondaryVariant">@color/colorPrimary</item>
-        <item name="colorSurface">@color/colorPrimary</item>
-        <item name="colorOnPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryVariant">@color/colorPrimaryDark</item>
+        <item name="colorSecondaryVariant">@color/colorPrimaryDark</item>
+        <item name="colorSurface">@color/colorPrimaryDark</item>
+        <item name="colorOnPrimary">@color/colorPrimaryDark</item>
         <item name="colorOnSecondary">@color/colorPrimaryDark</item>
-        <item name="colorOnBackground">@color/colorPrimary</item>
+        <item name="colorOnBackground">@color/colorPrimaryDark</item>
         <item name="colorOnError">@color/red</item>
         <item name="colorOnSurface">@color/colorBlack</item>
         <item name="scrimBackground">@color/mtrl_scrim_color</item>
@@ -51,6 +57,23 @@
         <item name="cornerSize">4dp</item>
     </style>
 
+    <style name="ThemeOverlay.AppTheme.ActionBar" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+        <!-- title text color -->
+        <item name="android:textColorPrimary">@color/colorBlack</item>
+        <!-- subtitle text color -->
+        <item name="android:textColorSecondary">@color/colorBlack</item>
+        <!-- action menu item text color -->
+        <item name="actionMenuTextColor">@color/colorBlack</item>
+        <!-- action menu item icon color -->
+        <item name="colorControlNormal">@color/colorBlack</item>
+    </style>
+
+    <style name="Widget.AppTheme.ActionBar" parent="Widget.AppCompat.ActionBar.Solid">
+        <!-- action bar background - without android prefix -->
+        <item name="background">@color/white</item>
+        <!-- action bar elevation - without android prefix -->
+        <item name="elevation">4dp</item>
+    </style>
 
 
 </resources>
