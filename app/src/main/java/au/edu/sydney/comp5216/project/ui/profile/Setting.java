@@ -11,6 +11,8 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -89,51 +91,10 @@ public class Setting extends AppCompatActivity {
 
     MarshmallowPermission marshmallowPermission = new MarshmallowPermission(this);
 
-    //    public View onCreateView(@NonNull LayoutInflater inflater,
-//                             ViewGroup container, Bundle savedInstanceState) {
-//        View root = inflater.inflate(R.layout.fragment_setting, container, false);
-//        final TextView textView = root.findViewById(R.id.text_profile);
-//        password = (Button) root.findViewById(R.id.password);
-//        signOut = (Button) root.findViewById(R.id.sign_out);
-//
-//        //get firebase auth instance
-//        auth = FirebaseAuth.getInstance();
-//
-//        //get current user
-//        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-//
-//        authListener = new FirebaseAuth.AuthStateListener() {
-//            @Override
-//            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-//                FirebaseUser user = firebaseAuth.getCurrentUser();
-//                if (user == null) {
-//                    // user auth state is changed - user is null
-//                    // launch login activity
-//                    Intent intent = new Intent(getActivity(), LoginActivity.class);
-//
-//                    startActivity(intent);
-//                }
-//            }
-//        };
-//
-//        signOut.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                System.out.println("Reset password");
-//                setPassword();
-//            }
-//        });
-//
-//        signOut.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                System.out.println("Signed out");
-//                signOut();
-//            }
-//        });
-//        return root;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getSupportActionBar().setTitle("0204");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         setContentView(R.layout.fragment_setting);
 
         final TextView textView = findViewById(R.id.text_profile);
@@ -342,6 +303,21 @@ public class Setting extends AppCompatActivity {
                         .into(ivPreview);
             }
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    public boolean onCreateOptionsMenu(Menu menu) {
+        return true;
     }
 }
 

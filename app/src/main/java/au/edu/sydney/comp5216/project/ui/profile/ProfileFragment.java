@@ -155,8 +155,8 @@ public class ProfileFragment extends Fragment{
 
         //get firebase auth instance
         auth = FirebaseAuth.getInstance();
-        changePicture = (Button) root.findViewById(R.id.changePicture);
-        loadPhoto = (Button) root.findViewById(R.id.loadphoto);
+//        changePicture = (Button) root.findViewById(R.id.changePicture);
+//        loadPhoto = (Button) root.findViewById(R.id.loadphoto);
         ivPreview = (ImageView) root.findViewById(R.id.photopreview);
 
         Uri uri = auth.getCurrentUser().getPhotoUrl();
@@ -165,20 +165,20 @@ public class ProfileFragment extends Fragment{
                 .load(uri)
                 .into(ivPreview);
 
-        loadPhoto.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-//                if (!marshmallowPermission.checkPermissionForReadfiles()) {
-//                    marshmallowPermission.requestPermissionForReadfiles();
-//                } else {
-                    // Create intent for picking a photo from the gallery
-                    Intent intent = new Intent(Intent.ACTION_PICK,
-                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-
-                    // Bring up gallery to select a photo
-                    startActivityForResult(intent, MY_PERMISSIONS_REQUEST_READ_PHOTOS);
-//                 }
-            }
-        });
+//        loadPhoto.setOnClickListener(new View.OnClickListener() {
+//            public void onClick(View v) {
+////                if (!marshmallowPermission.checkPermissionForReadfiles()) {
+////                    marshmallowPermission.requestPermissionForReadfiles();
+////                } else {
+//                    // Create intent for picking a photo from the gallery
+//                    Intent intent = new Intent(Intent.ACTION_PICK,
+//                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+//
+//                    // Bring up gallery to select a photo
+//                    startActivityForResult(intent, MY_PERMISSIONS_REQUEST_READ_PHOTOS);
+////                 }
+//            }
+//        });
 
 
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();

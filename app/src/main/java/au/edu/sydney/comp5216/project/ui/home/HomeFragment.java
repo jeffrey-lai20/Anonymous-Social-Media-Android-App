@@ -88,8 +88,8 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         rooms = new ArrayList<RoomItem>();
 
         userId = firebaseUser.getDisplayName();
-        Toast.makeText(getActivity(),
-                "User ID: " + userId + "!", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getActivity(),
+//                "User ID: " + userId + "!", Toast.LENGTH_SHORT).show();
 
         RoomItem defaultRoom = new RoomItem(userId, "Welcome to 0204!");
         defaultRoom.setRoomCreatedTime("2020-1-1 00:00:01");
@@ -316,18 +316,18 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                     }
                     sortItemsByDate();
                     gridAdapter.notifyDataSetChanged();
-                    Toast.makeText(getActivity(),
-                            "Get Documents Success!", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(getActivity(),
+//                            "Get Documents Success!", Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(getActivity(),
-                            "Get Documents Failed!", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(getActivity(),
+//                            "Get Documents Failed!", Toast.LENGTH_SHORT).show();
                 }
             }
         });
         //keep refreshing
         count++;
-        Toast.makeText(getActivity(),
-                "count: " + count, Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getActivity(),
+//                "count: " + count, Toast.LENGTH_SHORT).show();
 
         //refresh(1000); // 1 sec
     }
@@ -353,8 +353,8 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
             return;
         }
         rooms.clear();
-        Toast.makeText(getActivity(),
-                "Start Get Documents!", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getActivity(),
+//                "Start Get Documents!", Toast.LENGTH_SHORT).show();
         CollectionReference collectionRef = fireStore.collection("rooms");
         collectionRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -380,12 +380,12 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                         }
                         sortItemsByDate();
                         gridAdapter.notifyDataSetChanged();
-                        Toast.makeText(getActivity(),
-                                "Get Documents Success!", Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(getActivity(),
+//                                "Get Documents Success!", Toast.LENGTH_SHORT).show();
                     }
                 } else {
-                    Toast.makeText(getActivity(),
-                            "Get Documents Failed!", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(getActivity(),
+//                            "Get Documents Failed!", Toast.LENGTH_SHORT).show();
                 }
             }
         });

@@ -86,7 +86,7 @@ public class ChatFragment extends Fragment {
                     .load(R.drawable.hdimg_4)
                     .apply(requestOptions)
                     .into(imageView);
-                holder.setTvText(R.id.idTv,item.email);
+                holder.setTvText(R.id.idTv,item.userId);
                 holder.setTvText(R.id.messageTv,item.lastMessage);
                 holder.setTvText(R.id.timeTv, HelpUtils.formatDate(item.timeStamp));
                 if(hasMessage(item)) {

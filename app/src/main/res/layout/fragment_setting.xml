@@ -52,14 +52,15 @@
 <!--                android:onClick="onTakePhotoClick"-->
 <!--                android:text="Take Photo" />-->
 
-            <Button
-                android:id="@+id/loadphoto"
-                android:layout_width="120dp"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:padding="@dimen/activity_horizontal_margin"
-                android:onClick="onLoadPhotoClick"
-                android:text="Load Photo" />
+        <Button
+            android:id="@+id/loadphoto"
+            android:layout_width="120dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:padding="@dimen/activity_horizontal_margin"
+            android:onClick="onLoadPhotoClick"
+            android:text="Load Photo"
+            android:textColor="@android:color/black"/>
 <!--        </LinearLayout>-->
 
         <Button
@@ -70,8 +71,8 @@
             android:background="@color/colorPrimary"
             android:text="Change Profile Picture"
             android:layout_marginTop="16dp"
-            android:textColor="@android:color/white"
-            android:textStyle="bold"/>
+            android:textColor="@android:color/black"
+            android:textStyle="bold" />
         <Button
             android:id="@+id/password"
             style="?android:textAppearanceSmall"
@@ -80,7 +81,7 @@
             android:layout_marginTop="16dp"
             android:background="@color/colorPrimary"
             android:text="@string/btn_password"
-            android:textColor="@android:color/white"
+            android:textColor="@android:color/black"
             android:textStyle="bold"
             />
 
@@ -91,7 +92,7 @@
             android:layout_height="wrap_content"
             android:background="@color/colorPrimary"
             android:text="@string/btn_sign_out"
-            android:textColor="@android:color/white"
+            android:textColor="@android:color/black"
             android:textStyle="bold"
             android:layout_marginTop="16dp"
             />
@@ -100,6 +101,13 @@
 
 
     </LinearLayout>
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:minHeight="?attr/actionBarSize"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:titleTextColor="@android:color/white">
+    </androidx.appcompat.widget.Toolbar>
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

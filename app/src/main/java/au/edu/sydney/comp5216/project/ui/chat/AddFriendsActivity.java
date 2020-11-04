@@ -2,6 +2,7 @@ package au.edu.sydney.comp5216.project.ui.chat;
 
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -43,13 +44,15 @@ public class AddFriendsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getSupportActionBar().setTitle("0204");
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         setContentView(R.layout.activity_add_friends);
         ListView list = findViewById(R.id.friendsList);
         progressBar = findViewById(R.id.progressBar);
         mAdapter = new CommonAdapter<UserInfo>(R.layout.item_friends,mFriends) {
             @Override
             public void convert(CommonViewHolder holder, final UserInfo item, int position) {
-                holder.setTvText(R.id.nameTv,item.email);
+                holder.setTvText(R.id.nameTv,item.uid);
                 holder.getView(R.id.addBtn).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -154,5 +157,14 @@ public class AddFriendsActivity extends AppCompatActivity {
         String uid = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
         DBHelper.getInstance().getDatabase().getReference(Constants.Reference.ChatList)
                 .child(uid).removeEventListener(mChatListValueLister);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if(id == android.R.id.home){
+            finish();
+        }
+        return super.onOptionsItemSelected(item);
     }
 }
