@@ -171,6 +171,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                     rooms.add(room);
                 }
 
+                removeDuplicates(rooms);
                 displayRooms(rooms);
 
                 Toast.makeText(getActivity(),
@@ -193,6 +194,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                 }
 
                 rooms = newRooms;
+                removeDuplicates(rooms);
                 displayRooms(rooms);
 
                 Toast.makeText(getActivity(),
@@ -213,6 +215,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                 }
 
                 rooms = newRooms;
+                removeDuplicates(rooms);
                 displayRooms(rooms);
 
                 Toast.makeText(getActivity(),
@@ -369,6 +372,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                             i.putExtra("owner_id", roomItem.getOwnerId());
                             startActivity(i);
                             gridAdapter.notifyDataSetChanged();
+                            alertDialog.dismiss();
                         }
                     }
                 });
@@ -431,6 +435,8 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     }
 
     private void getRoomFromDB() {
+        rooms.clear();
+        rooms.add(getDedaultRoom());
         CollectionReference collectionRef = fireStore.collection("rooms");
         collectionRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -453,14 +459,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                         roomItem.setRoomCreatedTime(roomCreatedTime);
                         rooms.add(roomItem);
                     }
-                    for (int i = 0; i < rooms.size() - 1; i++) {
-                        for (int j = i + 1; j < rooms.size(); j++) {
-                            if (rooms.get(i).getRoomId().equals(rooms.get(j).getRoomId())) {
-                                rooms.remove(j);
-                                continue;
-                            }
-                        }
-                    }
+                    removeDuplicates(rooms);
                     sortItemsByDate();
                     gridAdapter.notifyDataSetChanged();
                 } else {
@@ -469,6 +468,31 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                 }
             }
         });
+    }
+
+    public void removeDuplicates(ArrayList<RoomItem> list) {
+        for (int i = 0; i < rooms.size() - 1; i++) {
+            for (int j = i + 1; j < rooms.size(); j++) {
+                if (rooms.get(i).getRoomId().equals(rooms.get(j).getRoomId())) {
+                    rooms.remove(j);
+                    continue;
+                }
+            }
+        }
+/*
+        // Create a new ArrayList
+        ArrayList<RoomItem> newList = new ArrayList<RoomItem>();
+
+        // Traverse through the first list
+        for (RoomItem e : list) {
+            // If this element is not present in newList
+            // then add it
+            if (!newList.contains(e)) {
+                newList.add(e);
+            }
+        }
+        // return the new list
+        return newList;*/
     }
 
 

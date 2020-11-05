@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -92,6 +93,17 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
         rvMessage.setLayoutManager(new LinearLayoutManager(RoomChatActivity.this));
         messageAdapter = new RoomMsgAdapter(RoomChatActivity.this, messages, messagedb);
         rvMessage.setAdapter(messageAdapter);
+
+        OnBackPressedCallback callback = new OnBackPressedCallback(true /* enabled by default */) {
+            @Override
+            public void handleOnBackPressed() {
+                // Handle the back button event
+                updateRoomData(room_id);
+                updateFireStore();
+                finish();
+            }
+        };
+        this.getOnBackPressedDispatcher().addCallback(this, callback);
     }
 
     private void init() {
@@ -132,7 +144,6 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
         if (item.getItemId() == R.id.menu_quit) {
             updateRoomData(room_id);
             updateFireStore();
-            startActivity(new Intent(RoomChatActivity.this, MainActivity.class));
             finish();
         } else if (item.getItemId() == R.id.menu_delete) {
             deleteRoom();
