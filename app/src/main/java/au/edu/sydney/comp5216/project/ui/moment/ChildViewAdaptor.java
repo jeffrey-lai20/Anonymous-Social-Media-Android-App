@@ -61,7 +61,7 @@ public class ChildViewAdaptor extends RecyclerView.Adapter<ChildViewAdaptor.Chil
         holder.id.setText(Integer.toString(reply.getid()));
         holder.content.setText(reply.getcontent());
         StorageReference storageReference = FirebaseStorage.getInstance().getReference();
-        StorageReference pathpicture = storageReference.child("default.png");
+        StorageReference pathpicture = storageReference.child(reply.getgender() + ".jpg");
         Glide.with(context)
                 .load(pathpicture)
                 .apply(new RequestOptions().override(50, 50))

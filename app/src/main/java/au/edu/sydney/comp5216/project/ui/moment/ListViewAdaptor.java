@@ -116,7 +116,7 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
         final Post post = mDataList.get(position);
         final boolean isExpanded = position==mExpandedPosition;
         StorageReference storageReference = FirebaseStorage.getInstance().getReference();
-        StorageReference pathpicture = storageReference.child("default.png");
+        StorageReference pathpicture = storageReference.child(post.getgender() + ".jpg");
         Glide.with(context)
                 .load(pathpicture)
                 .apply(new RequestOptions().override(50, 50))
@@ -217,7 +217,7 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
                     Toast.makeText(context,"Please type something",Toast.LENGTH_SHORT).show();
                 }else{
                     FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                    writetodb(Integer.parseInt(user.getDisplayName()),value,post.getpid(),position);
+                    getgender(Integer.parseInt(user.getDisplayName()),value,post.getpid(),position);
                     mExpandedPosition = isExpanded ? -1:position;
                     notifyItemChanged(position);
                 }
@@ -250,7 +250,7 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     for (QueryDocumentSnapshot document : task.getResult()) {
-                        Reply reply = new Reply(document.getLong("id").intValue(),document.getString("content"));
+                        Reply reply = new Reply(document.getLong("id").intValue(),document.getString("content"),document.getString("gender"));
                         replies.add(reply);
                     }
                     if(replies.size() != 0){
@@ -265,12 +265,13 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
         });
     }
 
-    private void writetodb(Integer id, String content, String pid, final Integer position){
+    private void writetodb(Integer id, String content, String pid, final Integer position, String gender){
         // Create post
         Map<String, Object> post = new HashMap<>();
         post.put("id", id);
         post.put("content", content);
         post.put("reply_to_id", pid);
+        post.put("gender", gender);
         post.put("created_at", FieldValue.serverTimestamp());
 
         // Save post to database
@@ -291,6 +292,25 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
                         Log.d("Post","Failed. Please check your network connection");
                     }
                 });
+    }
+
+    public void getgender(final Integer id, final String content, final String pid, final Integer position){
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        DocumentReference docref = db.collection("users").document(user.getDisplayName());
+        docref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        writetodb(id,content,pid,position,document.getString("gender"));
+                    } else {
+                    }
+                } else {
+                    Toast.makeText(context,"Failed. Please check your network connection",Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 }
 

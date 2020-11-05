@@ -76,7 +76,7 @@ public class MomentFragment extends Fragment{
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                post = new Post(document.getLong("id").intValue(),document.getString("content"),document.getString("image_path"),document.getLong("likes").intValue(),document.getId());
+                                post = new Post(document.getLong("id").intValue(),document.getString("content"),document.getString("image_path"),document.getLong("likes").intValue(),document.getId(),document.getString("gender"));
                                 if(group.contains(post.getpid())){
                                     post.setlike(true);
                                 }
@@ -113,28 +113,6 @@ public class MomentFragment extends Fragment{
         });
     }
 
-    public void getprofile_picture(final Post post, final Integer length){
-        DocumentReference docref = db.collection("users").document(post.getid().toString());
-        docref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        post.setUser_picture_path(document.getString("photo"));
-                        mDataList.add(post);
-                        if(mDataList.size() == length){
-                            mAdapter.notifyDataSetChanged();
-                        }
-                    } else {
-
-                    }
-                } else {
-                    Toast.makeText(getActivity(),"Failed. Please check your network connection",Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-    }
 
     public void getpicture(){
         for(final Post post:mDataList){

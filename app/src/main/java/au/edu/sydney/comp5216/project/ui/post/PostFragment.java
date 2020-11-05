@@ -32,8 +32,12 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -41,6 +45,7 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -122,24 +127,25 @@ public class PostFragment extends Fragment {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             String path = "images/"+photoUri.getLastPathSegment();
-                            writetodb(id,value,path);
+                            getgender(id,value,path);
                         }
                     });
                 }else{
-                    writetodb(id,value,null);
+                    getgender(id,value,null);
                 }
             }
         }
     }
 
     // Save post to database
-    private void writetodb(Integer id, String content,String path){
+    private void writetodb(Integer id, String content,String path, String gender){
         // Create post
         Map<String, Object> post = new HashMap<>();
         post.put("id", id);
         post.put("content", content);
         post.put("image_path", path);
         post.put("likes", 0);
+        post.put("gender", gender);
         post.put("created_at", FieldValue.serverTimestamp());
 
         // Save post to database
@@ -191,17 +197,22 @@ public class PostFragment extends Fragment {
         }
     }
 
-    public void subscribe(String id){
-        FirebaseMessaging.getInstance().subscribeToTopic(id)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-
-                        if (!task.isSuccessful()) {
-                            Toast.makeText(getContext(), "??", Toast.LENGTH_SHORT).show();
-                        }
-
+    public void getgender(final Integer id,final String content,final String path){
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        DocumentReference docref = db.collection("users").document(user.getDisplayName());
+        docref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        writetodb(id,content,path,document.getString("gender"));
+                    } else {
                     }
-                });
+                } else {
+                    Toast.makeText(getActivity(),"Failed. Please check your network connection",Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 }

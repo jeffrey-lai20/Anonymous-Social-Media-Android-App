@@ -17,6 +17,7 @@ public class Post {
     public Integer likes;
     public String pid;
     public String user_picture_path;
+    public String gender;
     public boolean like = false;
     public boolean expanded = false;
 
@@ -28,12 +29,13 @@ public class Post {
         this.id = id;
     }
 
-    public Post(Integer id, String content,String imagepath, Integer likes, String pid) {
+    public Post(Integer id, String content,String imagepath, Integer likes, String pid, String gender) {
         this.content = content;
         this.id = id;
         this.imagepath = imagepath;
         this.likes = likes;
         this.pid = pid;
+        this.gender = gender;
     }
 
     public Integer getid(){
@@ -54,6 +56,10 @@ public class Post {
 
     public String getpid(){
         return this.pid;
+    }
+
+    public String getgender(){
+        return this.gender;
     }
 
     public String getUser_picture_path(){

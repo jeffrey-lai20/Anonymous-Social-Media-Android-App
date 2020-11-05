@@ -241,7 +241,7 @@ public class ProfileFragment extends Fragment{
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                post = new Post(document.getLong("id").intValue(), document.getString("content"), document.getString("image_path"), document.getLong("likes").intValue(), document.getId());
+                                post = new Post(document.getLong("id").intValue(), document.getString("content"), document.getString("image_path"), document.getLong("likes").intValue(), document.getId(),document.getString("gender"));
                                 if (group.contains(post.getpid())) {
                                     post.setlike(true);
                                 }
