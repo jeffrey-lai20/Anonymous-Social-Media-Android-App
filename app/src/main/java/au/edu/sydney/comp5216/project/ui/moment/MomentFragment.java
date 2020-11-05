@@ -89,7 +89,6 @@ public class MomentFragment extends Fragment{
                         }
                     }
                 });
-
     }
 
     public void getlist_like(){
