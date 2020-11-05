@@ -257,7 +257,7 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
                         mAdapter.notifyDataSetChanged();
                         notifyItemChanged(myposition);
                     }else{
-                        notifyItemChanged(myposition);
+                        //notifyItemChanged(myposition);
                     }
                 } else {
                 }

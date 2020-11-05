@@ -69,7 +69,7 @@ public class MomentFragment extends Fragment{
 
     public void getpost(final ArrayList<String> group){
         db.collection("posts")
-                .orderBy("created_at", Query.Direction.DESCENDING)
+                .orderBy("created_at", Query.Direction.DESCENDING).limit(15)
                 .get()
                 .addOnCompleteListener(getActivity(), new OnCompleteListener<QuerySnapshot>() {
                     @Override
