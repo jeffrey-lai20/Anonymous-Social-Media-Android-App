@@ -116,12 +116,12 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
         final Post post = mDataList.get(position);
         final boolean isExpanded = position==mExpandedPosition;
         StorageReference storageReference = FirebaseStorage.getInstance().getReference();
-        StorageReference pathpicture = storageReference.child(post.getgender() + ".jpg");
-        Glide.with(context)
-                .load(pathpicture)
-                .apply(new RequestOptions().override(50, 50))
-                .into(holder.picture);
-            holder.child_view.setVisibility(isExpanded?View.VISIBLE:View.GONE);
+        if(post.getgender().equals("male")){
+            holder.picture.setImageResource(R.drawable.male);
+        }else {
+            holder.picture.setImageResource(R.drawable.female);
+        }
+        holder.child_view.setVisibility(isExpanded?View.VISIBLE:View.GONE);
         holder.btn_reply.setVisibility(isExpanded?View.VISIBLE:View.GONE);
         holder.text_reply.setVisibility(isExpanded?View.VISIBLE:View.GONE);
         //holder.ic_loading.setVisibility(isExpanded?View.VISIBLE:View.GONE);
