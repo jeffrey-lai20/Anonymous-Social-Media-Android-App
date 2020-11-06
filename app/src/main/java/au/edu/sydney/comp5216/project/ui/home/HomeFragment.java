@@ -236,8 +236,10 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     }
 
     private void displayRooms(ArrayList<RoomItem> rooms) {
-        gridAdapter = new GridAdapter(getActivity(), rooms);
-        gridView.setAdapter(gridAdapter);
+        if (getActivity()!=null){
+            gridAdapter = new GridAdapter(getActivity(), rooms);
+            gridView.setAdapter(gridAdapter);
+        }
     }
 
     private void updateRoomData(final String clickedRoomID) {
@@ -471,28 +473,21 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     }
 
     public void removeDuplicates(ArrayList<RoomItem> list) {
-        for (int i = 0; i < rooms.size() - 1; i++) {
-            for (int j = i + 1; j < rooms.size(); j++) {
-                if (rooms.get(i).getRoomId().equals(rooms.get(j).getRoomId())) {
-                    rooms.remove(j);
-                    continue;
-                }
-            }
-        }
-/*
         // Create a new ArrayList
         ArrayList<RoomItem> newList = new ArrayList<RoomItem>();
+        ArrayList<String> idList = new ArrayList<String>();
 
         // Traverse through the first list
         for (RoomItem e : list) {
             // If this element is not present in newList
             // then add it
-            if (!newList.contains(e)) {
+            if (!idList.contains(e.getRoomId())) {
                 newList.add(e);
+                idList.add(e.getRoomId());
             }
         }
         // return the new list
-        return newList;*/
+        rooms = newList;
     }
 
 
@@ -531,6 +526,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                             rooms.add(roomItem);
                         }
                         sortItemsByDate();
+                        removeDuplicates(rooms);
                         gridAdapter.notifyDataSetChanged();
                     }
                 } else {
