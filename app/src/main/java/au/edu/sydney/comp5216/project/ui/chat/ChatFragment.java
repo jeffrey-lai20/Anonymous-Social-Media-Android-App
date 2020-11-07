@@ -28,6 +28,8 @@ import com.bumptech.glide.request.RequestOptions;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import au.edu.sydney.comp5216.project.R;
 import au.edu.sydney.comp5216.project.base.CommonAdapter;
@@ -46,6 +48,8 @@ public class ChatFragment extends Fragment {
     private SwipeRefreshLayout swipeRefreshLayout;
     private TextView tipsTv;
     private ProgressBar progressBar;
+    private CharSequence query;
+
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -113,6 +117,44 @@ public class ChatFragment extends Fragment {
                 }
             }
         });
+
+        searchView = root.findViewById(R.id.searchView); // inititate a search view
+        query = searchView.getQuery(); // get the query string currently in the text field
+        searchView.setOnQueryTextListener(new androidx.appcompat.widget.SearchView.OnQueryTextListener() {
+
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                Timer timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                    }
+                }, 600); // 600ms delay before the timer executes the „run“ method from TimerTask
+                chatLv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                        ChatListInfo chatListInfo = chatViewModel.getUserInfo(i);
+                        if(chatListInfo != null) {
+                            Intent intent = new Intent(getActivity(), ChatDetailActivity.class);
+                            intent.putExtra("uid", chatListInfo.userId);
+                            intent.putExtra("email", chatListInfo.email);
+                            startActivity(intent);
+                            String uid = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
+                            String key = HelpUtils.getRoomId(uid,chatListInfo.userId);
+                            PreferencesUtils.putBoolean(getActivity(), Constants.PrefKey.HAS_MESSAGE+key,false);
+                            mAdapter.notifyDataSetChanged();
+                        }
+                    }
+                });
+                return true;
+            }
+        });
+
 
         chatLv.setAdapter(mAdapter);
         chatViewModel.onCreate();

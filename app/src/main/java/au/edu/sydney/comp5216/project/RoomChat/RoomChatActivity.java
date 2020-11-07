@@ -188,26 +188,31 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
 
     private void updateFireStore() {
         //update room joined number and joined user
-        int joinedUserNum = Integer.parseInt(currentRoomItem.getJoinedUserNum());
-        ArrayList<String> joinedUserIDs = currentRoomItem.getJoinedUserIDs();
-        if (joinedUserIDs.contains(userId) && joinedUserIDs != null) {
-            String num = Integer.toString(--joinedUserNum);
-            joinedUserIDs.remove(userId);
+        try {
+            //Causes error when joining a room after crashing
+            int joinedUserNum = Integer.parseInt(currentRoomItem.getJoinedUserNum());
+            ArrayList<String> joinedUserIDs = currentRoomItem.getJoinedUserIDs();
+            if (joinedUserIDs.contains(userId) && joinedUserIDs != null) {
+                String num = Integer.toString(--joinedUserNum);
+                joinedUserIDs.remove(userId);
 
-            Map<String, Object> room = new HashMap<>();
-            room.put("room_id", currentRoomItem.getRoomId());
-            room.put("owner_id", currentRoomItem.getOwnerId());
-            room.put("room_name", currentRoomItem.getRoomName());
-            room.put("joined_num", num);
-            room.put("joined_user_list", joinedUserIDs);
-            room.put("room_created_time", currentRoomItem.getRoomCreatedTime());
+                Map<String, Object> room = new HashMap<>();
+                room.put("room_id", currentRoomItem.getRoomId());
+                room.put("owner_id", currentRoomItem.getOwnerId());
+                room.put("room_name", currentRoomItem.getRoomName());
+                room.put("joined_num", num);
+                room.put("joined_user_list", joinedUserIDs);
+                room.put("room_created_time", currentRoomItem.getRoomCreatedTime());
 
-            fireStore.collection("rooms").document(currentRoomItem.getRoomId()).set(room);
-            Toast.makeText(getApplicationContext(),
-                    "Quit Update room success!", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(getApplicationContext(),
-                    "Quit Update room failed!", Toast.LENGTH_SHORT).show();
+                fireStore.collection("rooms").document(currentRoomItem.getRoomId()).set(room);
+                Toast.makeText(getApplicationContext(),
+                        "Quit Update room success!", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getApplicationContext(),
+                        "Quit Update room failed!", Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+
         }
     }
 

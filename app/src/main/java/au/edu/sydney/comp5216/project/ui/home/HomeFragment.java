@@ -174,8 +174,9 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                 removeDuplicates(rooms);
                 displayRooms(rooms);
 
-                Toast.makeText(getActivity(),
-                        "Add Success!" + room.getRoomId(), Toast.LENGTH_SHORT).show();
+                //Throws error
+//                Toast.makeText(getActivity(),
+//                        "Add Success!" + room.getRoomId(), Toast.LENGTH_SHORT).show();
             }
 
             @Override
