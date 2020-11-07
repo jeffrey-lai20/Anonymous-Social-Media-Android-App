@@ -102,6 +102,7 @@ public class PostFragment extends Fragment {
         return root;
     }
 
+    // Send post to firestore
     private void post(){
         // Hide keyboard
         final InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -197,6 +198,7 @@ public class PostFragment extends Fragment {
         }
     }
 
+    // Get gender of current user
     public void getgender(final Integer id,final String content,final String path){
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         DocumentReference docref = db.collection("users").document(user.getDisplayName());
