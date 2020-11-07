@@ -84,6 +84,7 @@ public class MomentFragment extends Fragment{
                                 mDataList.add(post);
                                 //getprofile_picture(post,task.getResult().size());
                             }
+                            mAdapter.notifyDataSetChanged();
                         } else {
                             Log.d(TAG, "Error getting documents: ", task.getException());
                         }

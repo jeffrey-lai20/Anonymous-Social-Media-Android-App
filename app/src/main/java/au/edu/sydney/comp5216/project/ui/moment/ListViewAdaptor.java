@@ -113,13 +113,12 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
         final Post post = mDataList.get(position);
         final boolean isExpanded = position==mExpandedPosition;
         StorageReference storageReference = FirebaseStorage.getInstance().getReference();
-        switch(post.getgender()){
-            case "male":
-                holder.picture.setImageResource(R.drawable.male);
-            case "Female":
-                holder.picture.setImageResource(R.drawable.female);
-            case "other":
-                holder.picture.setImageResource(R.drawable.anonymous);
+        if(post.getgender().equals("male")){
+            holder.picture.setImageResource(R.drawable.male);
+        }else if(post.getgender().equals("Female")){
+            holder.picture.setImageResource(R.drawable.female);
+        }else{
+            holder.picture.setImageResource(R.drawable.anonymous);
         }
         holder.child_view.setVisibility(isExpanded?View.VISIBLE:View.GONE);
         holder.btn_reply.setVisibility(isExpanded?View.VISIBLE:View.GONE);
