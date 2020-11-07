@@ -10,7 +10,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
@@ -33,7 +32,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.database.snapshot.Index;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -99,7 +97,6 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
             public void handleOnBackPressed() {
                 // Handle the back button event
                 updateRoomData(room_id);
-                updateFireStore();
                 finish();
             }
         };
@@ -126,7 +123,7 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
             etMessage.setText("");
             messagedb = database.getReference("room_messages").child(room_id);
             messagedb.push().setValue(message);
-
+            Log.d("MESSAGE", "Message sent!");
         } else {
             Toast.makeText(getApplicationContext(), "You cannot send empty message!",
                     Toast.LENGTH_SHORT).show();
@@ -143,7 +140,6 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.menu_quit) {
             updateRoomData(room_id);
-            updateFireStore();
             finish();
         } else if (item.getItemId() == R.id.menu_delete) {
             deleteRoom();
@@ -154,8 +150,7 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void updateRoomData(final String currentRoomID) {
-        Toast.makeText(getApplicationContext(),
-                "Updating!" + currentRoomID, Toast.LENGTH_SHORT).show();
+        Log.d("ROOM CHAT UPDATING", currentRoomID);
         roomdb = database.getReference("rooms");
         roomdb.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -184,31 +179,6 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
 
             }
         });
-    }
-
-    private void updateFireStore() {
-        //update room joined number and joined user
-        int joinedUserNum = Integer.parseInt(currentRoomItem.getJoinedUserNum());
-        ArrayList<String> joinedUserIDs = currentRoomItem.getJoinedUserIDs();
-        if (joinedUserIDs.contains(userId) && joinedUserIDs != null) {
-            String num = Integer.toString(--joinedUserNum);
-            joinedUserIDs.remove(userId);
-
-            Map<String, Object> room = new HashMap<>();
-            room.put("room_id", currentRoomItem.getRoomId());
-            room.put("owner_id", currentRoomItem.getOwnerId());
-            room.put("room_name", currentRoomItem.getRoomName());
-            room.put("joined_num", num);
-            room.put("joined_user_list", joinedUserIDs);
-            room.put("room_created_time", currentRoomItem.getRoomCreatedTime());
-
-            fireStore.collection("rooms").document(currentRoomItem.getRoomId()).set(room);
-            Toast.makeText(getApplicationContext(),
-                    "Quit Update room success!", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(getApplicationContext(),
-                    "Quit Update room failed!", Toast.LENGTH_SHORT).show();
-        }
     }
 
     private void deleteRoom() {
@@ -357,8 +327,7 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
             builder.create().show();
             return false;
         } else {
-            Toast.makeText(RoomChatActivity.this,
-                    "Room Name Changed Success", Toast.LENGTH_SHORT).show();
+            Log.d("ROOM NAME CHANGE", "Room Name Changed Success!");
             return true;
         }
     }
@@ -439,14 +408,12 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
                         currentRoomItem.setJoinedUserIDs(joinedUserIDs);
                         currentRoomItem.setRoomCreatedTime(roomCreatedTime);
 
-                        Toast.makeText(getApplicationContext(),
-                                "Get room Success!", Toast.LENGTH_SHORT).show();
+                        Log.d("GET ROOM", "Get room Success!");
                     } else {
-                        Log.d("GET ROOM", "No such document");
+                        Log.d("GET ROOM", "No such document!");
                     }
                 } else {
-                    Toast.makeText(getApplicationContext(),
-                            "Get room Failed!", Toast.LENGTH_SHORT).show();
+                    Log.d("GET ROOM", "Get room failed!");
                 }
             }
         });
@@ -527,7 +494,6 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
 
     private void displayMessages(List<RoomMessage> messages) {
         rvMessage.setLayoutManager(new LinearLayoutManager(RoomChatActivity.this));
-        //messageAdapter = new RoomMessageAdapter(RoomChatActivity.this, messages, messagedb);
         messageAdapter = new RoomMsgAdapter(RoomChatActivity.this, messages, messagedb);
         rvMessage.setAdapter(messageAdapter);
     }

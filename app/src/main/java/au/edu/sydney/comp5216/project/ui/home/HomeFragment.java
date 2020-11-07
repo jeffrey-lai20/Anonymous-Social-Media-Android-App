@@ -4,8 +4,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.text.InputType;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,19 +14,14 @@ import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.SearchView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
 
 import au.edu.sydney.comp5216.project.GridAdapter;
 import au.edu.sydney.comp5216.project.R;
-import au.edu.sydney.comp5216.project.RoomChat.AllMethods;
 import au.edu.sydney.comp5216.project.RoomChat.RoomChatActivity;
-import au.edu.sydney.comp5216.project.RoomChat.RoomMessage;
-import au.edu.sydney.comp5216.project.RoomChat.RoomMsgAdapter;
 import au.edu.sydney.comp5216.project.RoomItem;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -39,7 +33,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -52,9 +45,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-
-import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -102,19 +92,18 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //The default room can not be changed
-                if (position != 0) {
-                    //get room item
-                    RoomItem clickedRoom = (RoomItem) gridView.getItemAtPosition(position);
+                RoomItem clickedRoom = (RoomItem) gridView.getItemAtPosition(position);
+                if (!clickedRoom.getKey().equals("default key")) {
                     //update room data
-                    Toast.makeText(getActivity(),
-                            clickedRoom.getRoomId(), Toast.LENGTH_SHORT).show();
+                    Log.d("ROOM CLICKED", "Clicked Room ID: " + clickedRoom.getRoomId());
                     updateRoomData(clickedRoom.getRoomId());
-                    updateFireStore(clickedRoom);
                     Intent i = new Intent(getActivity(), RoomChatActivity.class);
                     i.putExtra("room_id", clickedRoom.getRoomId());
                     i.putExtra("room_name", clickedRoom.getRoomName());
                     i.putExtra("owner_id", clickedRoom.getOwnerId());
                     startActivity(i);
+                    searchView.setQuery("", false);
+                    searchView.clearFocus();
                 }
             }
         });
@@ -140,20 +129,12 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                     public void run() {
                     }
                 }, 600); // 600ms delay before the timer executes the „run“ method from TimerTask
-                getRoomFromDB(newText);
+                getRoomsFromDB(newText);
                 return true;
             }
         });
 
         return root;
-    }
-
-    private RoomItem getDedaultRoom() {
-        RoomItem defaultRoom = new RoomItem(userId, "Welcome to 0204!");
-        defaultRoom.setRoomCreatedTime("2020-1-1 00:00:01");
-        defaultRoom.setKey("default key");
-
-        return defaultRoom;
     }
 
     @Override
@@ -174,8 +155,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                 removeDuplicates(rooms);
                 displayRooms(rooms);
 
-                Toast.makeText(getActivity(),
-                        "Add Success!" + room.getRoomId(), Toast.LENGTH_SHORT).show();
+                Log.d("ROOMS ON CHILD LISTENER", "Add Success!");
             }
 
             @Override
@@ -197,8 +177,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                 removeDuplicates(rooms);
                 displayRooms(rooms);
 
-                Toast.makeText(getActivity(),
-                        "Change Success!" + room.getRoomId(), Toast.LENGTH_SHORT).show();
+                Log.d("ROOMS ON CHILD LISTENER", "Change Success!");
             }
 
             @Override
@@ -218,9 +197,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                 removeDuplicates(rooms);
                 displayRooms(rooms);
 
-                Toast.makeText(getActivity(),
-                        "Remove Success!" + room.getRoomId(), Toast.LENGTH_SHORT).show();
-
+                Log.d("ROOMS ON CHILD LISTENER", "Remove Success!");
             }
 
             @Override
@@ -234,99 +211,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
             }
         });
     }
-
-    private void displayRooms(ArrayList<RoomItem> rooms) {
-        if (getActivity()!=null){
-            gridAdapter = new GridAdapter(getActivity(), rooms);
-            gridView.setAdapter(gridAdapter);
-        }
-    }
-
-    private void updateRoomData(final String clickedRoomID) {
-        Toast.makeText(getActivity(),
-                "Updating!" + clickedRoomID, Toast.LENGTH_SHORT).show();
-        roomdb = database.getReference("rooms");
-        roomdb.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot s : snapshot.getChildren()) {
-                    RoomItem r = (RoomItem) s.getValue(RoomItem.class);
-                    //check room ID
-                    if (r.getRoomId().equals(clickedRoomID)) {
-                        String numBefore = r.getJoinedUserNum();
-                        ArrayList<String> joinedUserIDs = r.getJoinedUserIDs();
-                        //to update in realtime database
-                        int joinedUserNum = Integer.parseInt(numBefore);
-                        if (joinedUserIDs == null) {
-                            String numAfter = Integer.toString(++joinedUserNum);
-                            ArrayList<String> newJoinedUserIDs = new ArrayList<String>();
-                            newJoinedUserIDs.add(userId);
-                            roomdb.child(s.getKey()).child("joinedUserNum").setValue(numAfter);
-                            roomdb.child(s.getKey()).child("joinedUserIDs").setValue(newJoinedUserIDs);
-
-                            Toast.makeText(getActivity(),
-                                    "Update room success!", Toast.LENGTH_SHORT).show();
-                        } else if (joinedUserIDs != null && !joinedUserIDs.contains(userId)) {
-                            String numAfter = Integer.toString(++joinedUserNum);
-                            joinedUserIDs.add(userId);
-                            roomdb.child(s.getKey()).child("joinedUserNum").setValue(numAfter);
-                            roomdb.child(s.getKey()).child("joinedUserIDs").setValue(joinedUserIDs);
-                            Toast.makeText(getActivity(),
-                                    "Update room success!", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-    }
-
-    private void updateFireStore(RoomItem clickedRoom) {
-        //update room joined number and joined user
-        int joinedUserNum = Integer.parseInt(clickedRoom.getJoinedUserNum());
-        ArrayList<String> joinedUserIDs = clickedRoom.getJoinedUserIDs();
-        if (joinedUserIDs == null) {
-            String num = Integer.toString(++joinedUserNum);
-            ArrayList<String> newjoinedUserIDs = new ArrayList<String>();
-            newjoinedUserIDs.add(userId);
-
-            Map<String, Object> room = new HashMap<>();
-            room.put("room_id", clickedRoom.getRoomId());
-            room.put("owner_id", clickedRoom.getOwnerId());
-            room.put("room_name", clickedRoom.getRoomName());
-            room.put("joined_num", num);
-            room.put("joined_user_list", newjoinedUserIDs);
-            room.put("room_created_time", clickedRoom.getRoomCreatedTime());
-
-            fireStore.collection("rooms").document(clickedRoom.getRoomId()).set(room);
-            Toast.makeText(getActivity(),
-                    "Update room success!", Toast.LENGTH_SHORT).show();
-
-        } else if (!joinedUserIDs.contains(userId) && joinedUserIDs != null) {
-            String num = Integer.toString(++joinedUserNum);
-            joinedUserIDs.add(userId);
-
-            Map<String, Object> room = new HashMap<>();
-            room.put("room_id", clickedRoom.getRoomId());
-            room.put("owner_id", clickedRoom.getOwnerId());
-            room.put("room_name", clickedRoom.getRoomName());
-            room.put("joined_num", num);
-            room.put("joined_user_list", joinedUserIDs);
-            room.put("room_created_time", clickedRoom.getRoomCreatedTime());
-
-            fireStore.collection("rooms").document(clickedRoom.getRoomId()).set(room);
-            Toast.makeText(getActivity(),
-                    "Update room success!", Toast.LENGTH_SHORT).show();
-        } else {
-            Toast.makeText(getActivity(),
-                    "Update room failed! This user already in the list", Toast.LENGTH_SHORT).show();
-        }
-    }
-
 
     @Override
     public void onClick(View v) {
@@ -412,8 +296,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
             return false;
         } else {
             roomName = input;
-            Toast.makeText(getActivity(),
-                    "Room Added: " + roomName, Toast.LENGTH_SHORT).show();
+            Log.d("NAME INPUT CHECK", "Room Added: " + roomName);
             return true;
         }
     }
@@ -422,54 +305,110 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         //save to realtime db
         roomdb = database.getReference("rooms");
         roomdb.push().setValue(roomItem);
-
-        //save to firestore
-        CollectionReference rooms = fireStore.collection("rooms");
-        // get all room info
-        Map<String, Object> room = new HashMap<>();
-        room.put("room_id", roomItem.getRoomId());
-        room.put("owner_id", roomItem.getOwnerId());
-        room.put("room_name", roomItem.getRoomName());
-        room.put("joined_num", roomItem.getJoinedUserNum());
-        room.put("joined_user_list", roomItem.getJoinedUserIDs());
-        room.put("room_created_time", roomItem.getRoomCreatedTime());
-        rooms.document(roomItem.getRoomId()).set(room);
     }
 
-    private void getRoomFromDB() {
+    private void getRoomsFromDB() {
         rooms.clear();
         rooms.add(getDedaultRoom());
-        CollectionReference collectionRef = fireStore.collection("rooms");
-        collectionRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        Log.d("GET KEY", "Get key for room!");
+        roomdb = database.getReference("rooms");
+        roomdb.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    List<DocumentSnapshot> myListOfDocuments = task.getResult().getDocuments();
-                    for (DocumentSnapshot document : myListOfDocuments) {
-                        Map<String, Object> room = document.getData();
-                        String roomId = room.get("room_id").toString();
-                        String ownerId = room.get("owner_id").toString();
-                        String roomName = room.get("room_name").toString();
-                        String joinedUserNum = room.get("joined_num").toString();
-                        ArrayList<String> joinedUserIDs
-                                = (ArrayList<String>) document.get("joined_user_list");
-                        String roomCreatedTime = room.get("room_created_time").toString();
-                        RoomItem roomItem = new RoomItem(ownerId, roomName);
-                        roomItem.setRoomId(roomId);
-                        roomItem.setJoinedUserNum(joinedUserNum);
-                        roomItem.setJoinedUserIDs(joinedUserIDs);
-                        roomItem.setRoomCreatedTime(roomCreatedTime);
-                        rooms.add(roomItem);
-                    }
-                    removeDuplicates(rooms);
-                    sortItemsByDate();
-                    gridAdapter.notifyDataSetChanged();
-                } else {
-                    Toast.makeText(getActivity(),
-                            "Get Documents Failed!", Toast.LENGTH_SHORT).show();
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot s : snapshot.getChildren()) {
+                    RoomItem r = (RoomItem) s.getValue(RoomItem.class);
+                    //check room ID
+                    r.setKey(s.getKey());
+                    rooms.add(r);
                 }
+                removeDuplicates(rooms);
+                displayRooms(rooms);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
             }
         });
+    }
+
+    private void getRoomsFromDB(final String query) {
+        if (query.equals("")) {
+            getRoomsFromDB();
+            return;
+        }
+        rooms.clear();
+        roomdb = database.getReference("rooms");
+        roomdb.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot s : snapshot.getChildren()) {
+                    RoomItem r = (RoomItem) s.getValue(RoomItem.class);
+                    //check room ID
+                    r.setKey(s.getKey());
+                    if (r.getRoomName().contains(query)) {
+                        rooms.add(r);
+                    }
+                }
+                removeDuplicates(rooms);
+                displayRooms(rooms);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void updateRoomData(final String clickedRoomID) {
+        Log.d("UPDATING DATABASE", "Updating...");
+        roomdb = database.getReference("rooms");
+        roomdb.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot s : snapshot.getChildren()) {
+                    RoomItem r = (RoomItem) s.getValue(RoomItem.class);
+                    //check room ID
+                    if (r.getRoomId().equals(clickedRoomID)) {
+                        String numBefore = r.getJoinedUserNum();
+                        ArrayList<String> joinedUserIDs = r.getJoinedUserIDs();
+                        //to update in realtime database
+                        int joinedUserNum = Integer.parseInt(numBefore);
+                        if (joinedUserIDs == null) {
+                            String numAfter = Integer.toString(++joinedUserNum);
+                            ArrayList<String> newJoinedUserIDs = new ArrayList<String>();
+                            newJoinedUserIDs.add(userId);
+                            roomdb.child(s.getKey()).child("joinedUserNum").setValue(numAfter);
+                            roomdb.child(s.getKey()).child("joinedUserIDs").setValue(newJoinedUserIDs);
+
+                            Log.d("UPDATING DATABASE", "Update room success!");
+
+                        } else if (joinedUserIDs != null && !joinedUserIDs.contains(userId)) {
+                            String numAfter = Integer.toString(++joinedUserNum);
+                            joinedUserIDs.add(userId);
+                            roomdb.child(s.getKey()).child("joinedUserNum").setValue(numAfter);
+                            roomdb.child(s.getKey()).child("joinedUserIDs").setValue(joinedUserIDs);
+
+                            Log.d("UPDATING DATABASE", "Update room success!");
+
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void displayRooms(ArrayList<RoomItem> rooms) {
+        if (getActivity() != null) {
+            gridAdapter = new GridAdapter(getActivity(), rooms);
+            gridView.setAdapter(gridAdapter);
+        }
     }
 
     public void removeDuplicates(ArrayList<RoomItem> list) {
@@ -490,65 +429,11 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         rooms = newList;
     }
 
+    private RoomItem getDedaultRoom() {
+        RoomItem defaultRoom = new RoomItem(userId, "Welcome to 0204!");
+        defaultRoom.setRoomCreatedTime("2020-1-1 00:00:01");
+        defaultRoom.setKey("default key");
 
-    private void getRoomFromDB(final String query) {
-        if (query.equals("")) {
-            rooms.clear();
-            RoomItem defaultRoom = new RoomItem(userId, "Welcome to 0204!");
-            defaultRoom.setRoomCreatedTime("2020-1-1 00:00:01");
-            rooms.add(defaultRoom);
-            getRoomFromDB();
-            return;
-        }
-        rooms.clear();
-
-        CollectionReference collectionRef = fireStore.collection("rooms");
-        collectionRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    List<DocumentSnapshot> myListOfDocuments = task.getResult().getDocuments();
-                    for (DocumentSnapshot document : myListOfDocuments) {
-                        Map<String, Object> room = document.getData();
-                        String roomId = room.get("room_id").toString();
-                        String ownerId = room.get("owner_id").toString();
-                        String roomName = room.get("room_name").toString();
-                        String joinedUserNum = room.get("joined_num").toString();
-                        ArrayList<String> joinedUserIDs
-                                = (ArrayList<String>) document.get("joined_user_list");
-                        String roomCreatedTime = room.get("room_created_time").toString();
-                        RoomItem roomItem = new RoomItem(ownerId, roomName);
-                        roomItem.setRoomId(roomId);
-                        roomItem.setJoinedUserNum(joinedUserNum);
-                        roomItem.setJoinedUserIDs(joinedUserIDs);
-                        roomItem.setRoomCreatedTime(roomCreatedTime);
-                        if (roomName.contains(query)) {
-                            rooms.add(roomItem);
-                        }
-                        sortItemsByDate();
-                        removeDuplicates(rooms);
-                        gridAdapter.notifyDataSetChanged();
-                    }
-                } else {
-                    Toast.makeText(getActivity(),
-                            "Get Documents Failed!", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
-    }
-
-    /**
-     * Sort all exist items by date when items' size greater than 1,
-     * the latest edit/add item at the first.
-     */
-    private void sortItemsByDate() {
-        if (rooms.size() > 1) {
-            Collections.sort(rooms, new Comparator<RoomItem>() {
-                public int compare(RoomItem r1, RoomItem r2) {
-                    return r2.compareTo(r1);
-                }
-            });
-        }
+        return defaultRoom;
     }
 }

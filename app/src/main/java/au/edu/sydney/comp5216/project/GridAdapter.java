@@ -1,22 +1,12 @@
 package au.edu.sydney.comp5216.project;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
-
-import androidx.cardview.widget.CardView;
-
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
-import java.util.List;
-
-import au.edu.sydney.comp5216.project.ui.home.HomeFragment;
 
 public class GridAdapter extends BaseAdapter {
 
@@ -87,11 +77,7 @@ public class GridAdapter extends BaseAdapter {
         TextView roomPeople = (TextView) convertView.findViewById(R.id.gv_textView_num);
         roomName.setText(rooms.get(position).getRoomName());
         roomPeople.setText(rooms.get(position).getJoinedUserNum());
-        //Bitmap image = items.get(position).getImage();
 
-        // if (image != null){
-        // imageView.setImageBitmap(image);
-        //}
         return convertView;
     }
 }
