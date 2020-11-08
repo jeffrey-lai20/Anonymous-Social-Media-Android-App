@@ -65,7 +65,8 @@ public class Setting extends AppCompatActivity {
 
     private FirebaseAuth.AuthStateListener authListener;
     private FirebaseAuth auth;
-    private Button password, signOut, changePicture, loadPhoto, takePhoto;
+    private Button password, signOut;
+//            changePicture, loadPhoto, takePhoto;
 
     public final String APP_TAG = "AnonymousSocialMedia";
 
@@ -100,11 +101,11 @@ public class Setting extends AppCompatActivity {
         final TextView textView = findViewById(R.id.text_profile);
         password = (Button) findViewById(R.id.password);
         signOut = (Button) findViewById(R.id.sign_out);
-        changePicture = (Button) findViewById(R.id.changePicture);
+//        changePicture = (Button) findViewById(R.id.changePicture);
 //        takePhoto = (Button) findViewById(R.id.takephoto);
-        loadPhoto = (Button) findViewById(R.id.loadphoto);
+//        loadPhoto = (Button) findViewById(R.id.loadphoto);
 //        takePhoto.setVisibility(View.GONE);
-        loadPhoto.setVisibility(View.GONE);
+//        loadPhoto.setVisibility(View.GONE);
 
         // get the Firebase  storage reference
         storage = FirebaseStorage.getInstance();
@@ -150,24 +151,24 @@ public class Setting extends AppCompatActivity {
             }
         });
 
-        changePicture.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v)
-            {
-//                takePhoto.setVisibility(View.VISIBLE);
-                loadPhoto.setVisibility(View.VISIBLE);
-                changePicture.setVisibility(View.GONE);
-            }
-        });
-
-
-        ImageView ivPreview = (ImageView) findViewById(R.id.photopreview);
-
-        Uri uri = auth.getCurrentUser().getPhotoUrl();
-
-        Glide.with(ivPreview.getContext())
-            .load(uri)
-            .into(ivPreview);
+//        changePicture.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v)
+//            {
+////                takePhoto.setVisibility(View.VISIBLE);
+//                loadPhoto.setVisibility(View.VISIBLE);
+//                changePicture.setVisibility(View.GONE);
+//            }
+//        });
+//
+//
+//        ImageView ivPreview = (ImageView) findViewById(R.id.photopreview);
+//
+//        Uri uri = auth.getCurrentUser().getPhotoUrl();
+//
+//        Glide.with(ivPreview.getContext())
+//            .load(uri)
+//            .into(ivPreview);
     }
 
     public void onLoadPhotoClick(View view) {
@@ -320,4 +321,3 @@ public class Setting extends AppCompatActivity {
         return true;
     }
 }
-
