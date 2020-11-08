@@ -63,8 +63,8 @@ public class ChatFragment extends Fragment {
 
         swipeRefreshLayout = root.findViewById(R.id.swipeRefreshLayout);
         swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
-        searchView.findViewById(androidx.appcompat.R.id.search_plate).setBackground(null);
-        searchView.findViewById(androidx.appcompat.R.id.submit_area).setBackground(null);
+//        searchView.findViewById(androidx.appcompat.R.id.search_plate).setBackground(null);
+//        searchView.findViewById(androidx.appcompat.R.id.submit_area).setBackground(null);
         chatViewModel.getData().observe(getViewLifecycleOwner(), new Observer<List<ChatListInfo>>() {
             @Override
             public void onChanged(List<ChatListInfo> data) {
@@ -128,29 +128,85 @@ public class ChatFragment extends Fragment {
             }
 
             @Override
-            public boolean onQueryTextChange(String newText) {
+            public boolean onQueryTextChange(final String newText) {
                 Timer timer = new Timer();
                 timer.schedule(new TimerTask() {
                     @Override
                     public void run() {
                     }
                 }, 600); // 600ms delay before the timer executes the „run“ method from TimerTask
+                System.out.println("Change view to display searched users");
+                chatViewModel.getData().observe(getViewLifecycleOwner(), new Observer<List<ChatListInfo>>() {
+                    @Override
+                    public void onChanged(List<ChatListInfo> data) {
+                        if(data.size()>0) {
+                            swipeRefreshLayout.setVisibility(View.VISIBLE);
+                            tipsTv.setVisibility(View.GONE);
+                            mAdapter.refreshView(data);
+                        }else{
+                            swipeRefreshLayout.setVisibility(View.GONE);
+                            tipsTv.setVisibility(View.VISIBLE);
+                        }
+                        progressBar.setVisibility(View.GONE);
+                    }
+                });
+
+                mAdapter = new CommonAdapter<ChatListInfo>(R.layout.item_chat_view,chatViewModel.getData().getValue()) {
+                    @Override
+                    public void convert(CommonViewHolder holder, ChatListInfo item, int position) {
+                        if (!item.userId.contains(newText)) {
+                            System.out.println("No results found");
+                            holder.setVisibility(R.id.idTv, View.GONE);
+                            holder.setVisibility(R.id.messageTv, View.GONE);
+                            holder.setVisibility(R.id.timeTv, View.GONE);
+                            holder.setVisibility(R.id.redView, View.GONE);
+                            return;
+                        }
+                        RequestOptions requestOptions = new RequestOptions()
+                            .diskCacheStrategy(DiskCacheStrategy.ALL);
+                        ImageView imageView = holder.getImageView(R.id.avatarIv);
+
+
+                        Glide.with(getActivity())
+                                .load(R.drawable.hdimg_4)
+                                .apply(requestOptions)
+                                    .into(imageView);
+
+                        holder.setTvText(R.id.idTv,item.userId);
+                        holder.setTvText(R.id.messageTv,item.lastMessage);
+                        holder.setTvText(R.id.timeTv, HelpUtils.formatDate(item.timeStamp));
+                        if(hasMessage(item)) {
+                            holder.setVisibility(R.id.redView, View.VISIBLE);
+                        }else{
+                            holder.setVisibility(R.id.redView, View.GONE);
+                        }
+
+
+                    }
+                };
+
                 chatLv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                     @Override
                     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                         ChatListInfo chatListInfo = chatViewModel.getUserInfo(i);
                         if(chatListInfo != null) {
-                            Intent intent = new Intent(getActivity(), ChatDetailActivity.class);
-                            intent.putExtra("uid", chatListInfo.userId);
-                            intent.putExtra("email", chatListInfo.email);
-                            startActivity(intent);
-                            String uid = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
-                            String key = HelpUtils.getRoomId(uid,chatListInfo.userId);
-                            PreferencesUtils.putBoolean(getActivity(), Constants.PrefKey.HAS_MESSAGE+key,false);
-                            mAdapter.notifyDataSetChanged();
+                            if (chatListInfo.userId.contains(newText)) {
+                                Intent intent = new Intent(getActivity(), ChatDetailActivity.class);
+                                intent.putExtra("uid", chatListInfo.userId);
+                                intent.putExtra("email", chatListInfo.email);
+                                startActivity(intent);
+                                String uid = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
+                                String key = HelpUtils.getRoomId(uid, chatListInfo.userId);
+                                PreferencesUtils.putBoolean(getActivity(), Constants.PrefKey.HAS_MESSAGE + key, false);
+                                mAdapter.notifyDataSetChanged();
+                            } else {
+                                return;
+                            }
                         }
                     }
                 });
+                chatLv.setAdapter(mAdapter);
+                chatViewModel.onCreate();
                 return true;
             }
         });
