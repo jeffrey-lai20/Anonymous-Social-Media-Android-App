@@ -124,7 +124,7 @@ public class MessageService extends Service {
                 intent,PendingIntent.FLAG_UPDATE_CURRENT);
         Notification notification = null;
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            notification = new Notification.Builder(this,"chat") //引用加上channelid
+            notification = new Notification.Builder(this,"chat") //channelid
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setWhen(System.currentTimeMillis())
                 .setContentTitle("Message")

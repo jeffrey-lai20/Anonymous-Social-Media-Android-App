@@ -22,17 +22,33 @@ public class ChatDetailAdapter extends RecyclerView.Adapter<ChatDetailAdapter.Ms
     private List<MessageInfo> listData;
     private Context context;
 
+    /**
+     * Constructor of custom personal message adapter
+     * @param context
+     * @param listData
+     */
     public ChatDetailAdapter(Context context, List<MessageInfo> listData) {
         this.context = context;
         this.listData = listData;
     }
 
+    /**
+     * custom personal message adapter view holder
+     * @param parent
+     * @param viewType
+     * @return
+     */
     @Override
     public MsgViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.item_chat_msg_list, parent, false);
         return new MsgViewHolder(view);
     }
 
+    /**
+     * Handle bind view to display and hide in one to one chat
+     * @param holder
+     * @param position
+     */
     @Override
     public void onBindViewHolder(MsgViewHolder holder, int position) {
         MessageInfo currentMsgData = listData.get(position);
@@ -62,11 +78,18 @@ public class ChatDetailAdapter extends RecyclerView.Adapter<ChatDetailAdapter.Ms
         holder.timeStamp.setVisibility(View.GONE);
     }
 
+    /**
+     * get message list size
+     * @return
+     */
     @Override
     public int getItemCount() {
         return listData.size();
     }
 
+    /**
+     * Custom personal message adapter view holder class
+     */
     class MsgViewHolder extends RecyclerView.ViewHolder {
 
         ImageView receiver_profile, send_profile;
@@ -74,6 +97,10 @@ public class ChatDetailAdapter extends RecyclerView.Adapter<ChatDetailAdapter.Ms
         RelativeLayout senderLayout;
         LinearLayout receiverLayout;
 
+        /**
+         * Constructor of custom personal message adapter view holder
+         * @param itemView
+         */
         public MsgViewHolder(View itemView) {
             super(itemView);
             receiver_profile =  itemView.findViewById(R.id.item_wechat_msg_iv_receiver_profile);

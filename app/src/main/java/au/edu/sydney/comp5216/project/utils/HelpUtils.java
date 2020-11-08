@@ -7,7 +7,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-
+/**
+ * Some public methods
+ */
 public class HelpUtils {
 
     public static int getScreenHeight(Context context) {

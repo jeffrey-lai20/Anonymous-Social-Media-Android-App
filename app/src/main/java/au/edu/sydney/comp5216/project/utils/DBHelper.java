@@ -72,6 +72,13 @@ public class DBHelper {
                 .child(info.id).setValue(info);
     }
 
+    /**
+     * update chat list
+     * @param chatListInfo
+     * @param from
+     * @param to
+     * @return
+     */
     public Task<Void> updateChatList(ChatListInfo chatListInfo, String from, String to)
     {
         String roomId = HelpUtils.getRoomId(from,to);

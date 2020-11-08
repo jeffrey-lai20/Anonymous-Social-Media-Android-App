@@ -128,6 +128,10 @@ public class AddFriendsActivity extends AppCompatActivity {
         return mRelations.contains(roomId);
     }
 
+    /**
+     * add friends
+     * @param user
+     */
     private void addFriend(UserInfo user)
     {
         ChatListInfo chatListInfo = new ChatListInfo();

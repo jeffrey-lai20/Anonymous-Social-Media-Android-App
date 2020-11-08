@@ -70,6 +70,7 @@ public class ChatDetailActivity extends AppCompatActivity {
         PreferencesUtils.putBoolean(this, Constants.PrefKey.HAS_MESSAGE+key,false);
     }
 
+
     private void setListener()
     {
         sendBtn.setOnClickListener(new View.OnClickListener() {
@@ -106,6 +107,9 @@ public class ChatDetailActivity extends AppCompatActivity {
             .addValueEventListener(mMessageListener);
     }
 
+    /**
+     *Listen to the message callback and display to the chat list
+     */
     private ValueEventListener mMessageListener = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -117,9 +121,11 @@ public class ChatDetailActivity extends AppCompatActivity {
                 for (Map.Entry<String, MessageInfo> entry : messages.entrySet()) {
                     MessageInfo info = entry.getValue();
                     if (from.equals(info.creator)) {
+                        //If it is a sent message, display on the right
                         info.msgType = TYPE_SENDER_MSG;
                         info.avatarRes = profileId;
                     } else {
+                        //If it is a receive message, display on the left
                         info.msgType = TYPE_RECEIVER_MSG;
                         info.avatarRes = R.drawable.hdimg_4;
                     }
