@@ -78,8 +78,6 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
         public ImageButton btn_reply;
         public TextInputLayout text_reply;
         public TextInputEditText editText_reply;
-        //public ProgressBar ic_loading;
-
 
 
         public MyViewHolder(View view){
@@ -94,7 +92,6 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
             text_reply = (TextInputLayout) view.findViewById(R.id.text_reply);
             picture = (ImageView)view.findViewById(R.id.image_user);
             editText_reply = (TextInputEditText) view.findViewById(R.id.edittext_reply);
-            //ic_loading = (ProgressBar)view.findViewById(R.id.ic_loading);
         }
     }
 
@@ -118,19 +115,22 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
         StorageReference storageReference = FirebaseStorage.getInstance().getReference();
         if(post.getgender().equals("male")){
             holder.picture.setImageResource(R.drawable.male);
-        }else {
+        }else if(post.getgender().equals("Female")){
             holder.picture.setImageResource(R.drawable.female);
+        }else{
+            holder.picture.setImageResource(R.drawable.anonymous);
         }
         holder.child_view.setVisibility(isExpanded?View.VISIBLE:View.GONE);
         holder.btn_reply.setVisibility(isExpanded?View.VISIBLE:View.GONE);
         holder.text_reply.setVisibility(isExpanded?View.VISIBLE:View.GONE);
-        //holder.ic_loading.setVisibility(isExpanded?View.VISIBLE:View.GONE);
+        // Adpater for nested recyclerview
         mAdapter = new ChildViewAdaptor(replies);
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(context.getApplicationContext());
         holder.child_view.setLayoutManager(mLayoutManager);
         holder.child_view.setItemAnimator(new DefaultItemAnimator());
         holder.child_view.setHasFixedSize(true);
         holder.child_view.setAdapter(mAdapter);
+
         holder.itemView.setActivated(isExpanded);
         holder.id.setText(Integer.toString(post.getid()));
         holder.content.setText(post.getcontent());
@@ -230,6 +230,7 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
         return mDataList.size();
     }
 
+    // Update like counts from database
     public void updateLikeCount(Post post){
         DocumentReference dbref = db.collection("posts").document(post.getpid());
         dbref.update("likes",post.getlikes()).addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -265,8 +266,9 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
         });
     }
 
+    // Save replies to database
     private void writetodb(Integer id, String content, String pid, final Integer position, String gender){
-        // Create post
+        // Create reply
         Map<String, Object> post = new HashMap<>();
         post.put("id", id);
         post.put("content", content);
@@ -274,7 +276,7 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
         post.put("gender", gender);
         post.put("created_at", FieldValue.serverTimestamp());
 
-        // Save post to database
+        // Save reply to database
         db.collection("replies")
                 .add(post)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
@@ -294,6 +296,7 @@ public class ListViewAdaptor extends RecyclerView.Adapter<ListViewAdaptor.MyView
                 });
     }
 
+    // Get the gender of users of posts
     public void getgender(final Integer id, final String content, final String pid, final Integer position){
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         DocumentReference docref = db.collection("users").document(user.getDisplayName());

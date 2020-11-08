@@ -13,7 +13,8 @@ public class RoomMessage {
     private String roomId;
     private String messageCreatedTime;
 
-    public RoomMessage(){}
+    public RoomMessage() {
+    }
 
     public RoomMessage(String message, String userId, String roomId) {
         this.message = message;
@@ -48,7 +49,9 @@ public class RoomMessage {
 
     public String getMessageCreatedTime() { return messageCreatedTime; }
 
-    public void setMessageCreatedTime(String messageCreatedTime) { this.messageCreatedTime = messageCreatedTime; }
+    public void setMessageCreatedTime(String messageCreatedTime) {
+        this.messageCreatedTime = messageCreatedTime;
+    }
 
     @Override
     public String toString() {

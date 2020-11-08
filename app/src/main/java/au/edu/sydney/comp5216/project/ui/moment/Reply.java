@@ -3,7 +3,6 @@ package au.edu.sydney.comp5216.project.ui.moment;
 public class Reply {
     public Integer id;
     public String content;
-    public String user_picture_path;
     public String gender;
 
     Reply(){
@@ -28,11 +27,4 @@ public class Reply {
         return this.gender;
     }
 
-    public void setUser_picture_path(String path){
-        this.user_picture_path = path;
-    }
-
-    public String getUser_picture_path(){
-        return this.user_picture_path;
-    }
 }
