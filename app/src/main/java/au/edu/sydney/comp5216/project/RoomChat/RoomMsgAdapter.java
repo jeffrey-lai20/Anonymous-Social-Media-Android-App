@@ -8,7 +8,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -24,6 +23,12 @@ public class RoomMsgAdapter extends RecyclerView.Adapter<RoomMsgAdapter.RoomMess
     List<RoomMessage> messageList;
     DatabaseReference messagedb;
 
+    /**
+     * Constructor of custome room message adapter
+     * @param context Context type of handle context
+     * @param messageList List type of message list
+     * @param messagedb DatabaseReference of message database reference
+     */
     public RoomMsgAdapter(Context context,
                           List<RoomMessage> messageList, DatabaseReference messagedb) {
         this.context = context;
@@ -31,6 +36,12 @@ public class RoomMsgAdapter extends RecyclerView.Adapter<RoomMsgAdapter.RoomMess
         this.messagedb = messagedb;
     }
 
+    /**
+     *  Custom room message adapter view holder
+     * @param parent ViewGroup type
+     * @param viewType View type
+     * @return RoomMessageAdapterViewHolder type, custom view holder
+     */
     @NonNull
     @Override
     public RoomMessageAdapterViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -38,6 +49,11 @@ public class RoomMsgAdapter extends RecyclerView.Adapter<RoomMsgAdapter.RoomMess
         return new RoomMessageAdapterViewHolder(view);
     }
 
+    /**
+     * Handle bind view holder and room messages
+     * @param holder RoomMessageAdapterViewHolder type
+     * @param position int type, view position
+     */
     @Override
     public void onBindViewHolder(@NonNull RoomMsgAdapter.RoomMessageAdapterViewHolder holder, int position) {
         RoomMessage message = messageList.get(position);
@@ -54,11 +70,18 @@ public class RoomMsgAdapter extends RecyclerView.Adapter<RoomMsgAdapter.RoomMess
         }
     }
 
+    /**
+     * get message list size
+     * @return int type of list size
+     */
     @Override
     public int getItemCount() {
         return messageList.size();
     }
 
+    /**
+     * Custom room message adapter view holder class
+     */
     public class RoomMessageAdapterViewHolder extends RecyclerView.ViewHolder {
 
         TextView tv_room_id_receiver, tv_room_msg_left, tv_room_msg_right;
@@ -66,6 +89,10 @@ public class RoomMsgAdapter extends RecyclerView.Adapter<RoomMsgAdapter.RoomMess
         LinearLayout ll_left;
         RelativeLayout rl_right;
 
+        /**
+         * Constructor of custom room message adapter view holder
+         * @param itemView view type of current view
+         */
         public RoomMessageAdapterViewHolder(View itemView) {
             super(itemView);
 

@@ -20,10 +20,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -32,18 +28,13 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.TimeZone;
 
 import au.edu.sydney.comp5216.project.MainActivity;
@@ -52,19 +43,16 @@ import au.edu.sydney.comp5216.project.RoomItem;
 
 public class RoomChatActivity extends AppCompatActivity implements View.OnClickListener {
 
-    FirebaseAuth auth;
     private String userId;
     private String room_id;
     private String room_name;
     private String owner_id;
-    private String enter_room_time;
-    private RoomItem currentRoomItem;
-    FirebaseUser firebaseUser;
-    FirebaseFirestore fireStore;
 
-    FirebaseDatabase database;
-    DatabaseReference messagedb;
-    DatabaseReference roomdb;
+    private FirebaseAuth auth;
+    private FirebaseUser firebaseUser;
+    private FirebaseDatabase database;
+    private DatabaseReference messagedb;
+    private DatabaseReference roomdb;
 
     RoomMsgAdapter messageAdapter;
     List<RoomMessage> messages;
@@ -80,7 +68,6 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
         setContentView(R.layout.activity_room_chat);
 
         init();
-        getCurrentRoomItem();
 
         rvMessage = (RecyclerView) findViewById(R.id.rv_massge);
         etMessage = (EditText) findViewById(R.id.et_room_message);
@@ -92,6 +79,7 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
         messageAdapter = new RoomMsgAdapter(RoomChatActivity.this, messages, messagedb);
         rvMessage.setAdapter(messageAdapter);
 
+        //Custom back button function
         OnBackPressedCallback callback = new OnBackPressedCallback(true /* enabled by default */) {
             @Override
             public void handleOnBackPressed() {
@@ -103,19 +91,24 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
         this.getOnBackPressedDispatcher().addCallback(this, callback);
     }
 
+    /**
+     * initialize all needed parameter
+     */
     private void init() {
         auth = FirebaseAuth.getInstance();
         database = FirebaseDatabase.getInstance();
-        fireStore = FirebaseFirestore.getInstance();
         firebaseUser = auth.getCurrentUser();
 
         room_id = getIntent().getStringExtra("room_id");
         room_name = getIntent().getStringExtra("room_name");
         owner_id = getIntent().getStringExtra("owner_id");
-        enter_room_time = getCurrentDateAndTimeString();
         setTitle(room_name);
     }
 
+    /**
+     * set up on click method for user send message
+     * @param v current room chat view
+     */
     @Override
     public void onClick(View v) {
         if (!TextUtils.isEmpty(etMessage.getText().toString())) {
@@ -130,12 +123,22 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
         }
     }
 
+    /**
+     * set up room chat menu
+     * @param menu room chat activity menu
+     * @return boolean type of menu inflate result
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.room_chat_menu, menu);
         return true;
     }
 
+    /**
+     * handle three menus: change room name, delte room and quit room
+     * @param item menu item
+     * @return boolean type of menu event result
+     */
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.menu_quit) {
@@ -149,6 +152,10 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Update room data when user quite current room
+     * @param currentRoomID String type of current room id
+     */
     private void updateRoomData(final String currentRoomID) {
         Log.d("ROOM CHAT UPDATING", currentRoomID);
         roomdb = database.getReference("rooms");
@@ -181,7 +188,11 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
         });
     }
 
+    /**
+     * Handle room deletion when user click delete menu
+     */
     private void deleteRoom() {
+        //check authority of deletion
         if (owner_id.equals(userId)) {
             AlertDialog.Builder builder = new AlertDialog.Builder(RoomChatActivity.this);
             builder.setTitle("Delete Room!")
@@ -214,10 +225,14 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
         }
     }
 
+    /**
+     * Handle change room name when user click change name menu
+     */
     private void changeRoomName() {
+        //check authority of changing
         if (owner_id.equals(userId)) {
             AlertDialog.Builder builder = new AlertDialog.Builder(RoomChatActivity.this);
-
+            //set up custom room name input dialog
             View dialogV = getLayoutInflater().inflate(R.layout.dialog_room_create, null);
             //set up the input
             final EditText roomNameInput = (EditText) dialogV.findViewById(R.id.et_room_name);
@@ -228,7 +243,7 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
             builder.setView(dialogV);
 
             final AlertDialog alertDialog = builder.create();
-
+            //set up negative button
             btn_cancel.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -236,7 +251,7 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
                         alertDialog.dismiss();
                 }
             });
-
+            //set up positive button, confirm room name change
             btn_ok.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -268,21 +283,6 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
                             }
                         });
 
-                        //update firestore
-                        fireStore.collection("rooms").document(room_id)
-                                .update("room_name", inputName)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Log.d("CHANGE ROOM NAME", "DocumentSnapshot successfully updated!");
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.w("CHANGE ROOM NAME", "Error updating document", e);
-                                    }
-                                });
                     }
                 }
             });
@@ -298,9 +298,13 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
                     });
             builder.create().show();
         }
-
     }
 
+    /**
+     * Check the room name input whether is valid
+     * @param input room name input by user
+     * @return boolean room name input check result
+     */
     private boolean inputCheck(String input) {
         if (input.toCharArray().length == 0) {
             AlertDialog.Builder builder = new AlertDialog.Builder(RoomChatActivity.this);
@@ -332,6 +336,9 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
         }
     }
 
+    /**
+     * Handle room messages deletion when user delete room
+     */
     private void messageDelete() {
         messagedb = database.getReference("room_messages");
         messagedb.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -347,6 +354,9 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
         });
     }
 
+    /**
+     * Handle room detele when user confirm delelte room
+     */
     private void roomDelete() {
         //delete database
         roomdb = database.getReference("rooms");
@@ -365,56 +375,6 @@ public class RoomChatActivity extends AppCompatActivity implements View.OnClickL
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
 
-            }
-        });
-
-        //delete firestore
-        fireStore.collection("rooms").document(room_id)
-                .delete()
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d("DELETE ROOM", "DocumentSnapshot successfully deleted!");
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w("DELETE ROOM", "Error deleting document", e);
-                    }
-                });
-    }
-
-    private void getCurrentRoomItem() {
-        DocumentReference docRef = fireStore.collection("rooms").document(room_id);
-        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        Log.d("GET ROOM", "Get documentSnapshot data...");
-                        Map<String, Object> room = document.getData();
-                        String roomId = room.get("room_id").toString();
-                        String ownerId = room.get("owner_id").toString();
-                        String roomName = room.get("room_name").toString();
-                        String joinedUserNum = room.get("joined_num").toString();
-                        ArrayList<String> joinedUserIDs
-                                = (ArrayList<String>) document.get("joined_user_list");
-                        String roomCreatedTime = room.get("room_created_time").toString();
-                        currentRoomItem = new RoomItem(ownerId, roomName);
-                        currentRoomItem.setRoomId(roomId);
-                        currentRoomItem.setJoinedUserNum(joinedUserNum);
-                        currentRoomItem.setJoinedUserIDs(joinedUserIDs);
-                        currentRoomItem.setRoomCreatedTime(roomCreatedTime);
-
-                        Log.d("GET ROOM", "Get room Success!");
-                    } else {
-                        Log.d("GET ROOM", "No such document!");
-                    }
-                } else {
-                    Log.d("GET ROOM", "Get room failed!");
-                }
             }
         });
     }

@@ -24,8 +24,6 @@ import au.edu.sydney.comp5216.project.R;
 import au.edu.sydney.comp5216.project.RoomChat.RoomChatActivity;
 import au.edu.sydney.comp5216.project.RoomItem;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -34,17 +32,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -56,15 +45,13 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     static private ArrayList<RoomItem> rooms = null;
 
     private FirebaseUser firebaseUser;
-    private FirebaseFirestore fireStore;
-    FirebaseDatabase database;
-    DatabaseReference roomdb;
+    private FirebaseDatabase database;
+    private DatabaseReference roomdb;
 
     private String userId;
     private String roomName = "";
 
     private ImageButton addNewRoomButton;
-
     private SearchView searchView;
     private CharSequence query;
 
@@ -74,7 +61,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         View root = inflater.inflate(R.layout.fragment_home, container, false);
 
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        fireStore = FirebaseFirestore.getInstance();
         database = FirebaseDatabase.getInstance();
 
         rooms = new ArrayList<RoomItem>();
@@ -137,6 +123,10 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         return root;
     }
 
+    /**
+     * Set up database on child event listener for the room status
+     * Keep refreshing the room status, including room added, changed, removed
+     */
     @Override
     public void onStart() {
         super.onStart();
@@ -212,6 +202,10 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         });
     }
 
+    /**
+     * Set up on click method for add new room button
+     * @param v current fragment view
+     */
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -219,9 +213,9 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
             case R.id.btn_add_new_room:
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-
+                //custom dialog view
                 View dialogV = getLayoutInflater().inflate(R.layout.dialog_room_create, null);
-                //set up the input
+                //set up the room name input
                 final EditText roomNameInput = (EditText) dialogV.findViewById(R.id.et_room_name);
 
                 Button btn_cancel = (Button) dialogV.findViewById(R.id.btn_cancel);
@@ -229,7 +223,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                 builder.setView(dialogV);
 
                 final AlertDialog alertDialog = builder.create();
-
+                //set up negative button, which means add new room canceled
                 btn_cancel.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -237,7 +231,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                             alertDialog.dismiss();
                     }
                 });
-
+                //set up positive button, which means new room created
                 btn_ok.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -269,6 +263,11 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         }
     }
 
+    /**
+     * Check the room name input whether is valid
+     * @param input room name input by user
+     * @return boolean room name input check result
+     */
     private boolean inputCheck(String input) {
         if (input.toCharArray().length == 0) {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -301,12 +300,18 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         }
     }
 
+    /**
+     * //save new room to realtime database of Firebase, under "rooms" path
+     * @param roomItem new roon item
+     */
     private void saveRoomToDB(RoomItem roomItem) {
-        //save to realtime db
         roomdb = database.getReference("rooms");
         roomdb.push().setValue(roomItem);
     }
 
+    /**
+     * get rooms from the Firebase database and display them in grid view
+     */
     private void getRoomsFromDB() {
         rooms.clear();
         rooms.add(getDedaultRoom());
@@ -332,6 +337,11 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         });
     }
 
+    /**
+     * get rooms from the Firebase database by search query
+     * and display them in grid view
+     * @param query search input query
+     */
     private void getRoomsFromDB(final String query) {
         if (query.equals("")) {
             getRoomsFromDB();
@@ -361,6 +371,10 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         });
     }
 
+    /**
+     * Update room data in Firebase database when user enter the room
+     * @param clickedRoomID the room which user entered(clicked)
+     */
     private void updateRoomData(final String clickedRoomID) {
         Log.d("UPDATING DATABASE", "Updating...");
         roomdb = database.getReference("rooms");
@@ -375,21 +389,22 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                         ArrayList<String> joinedUserIDs = r.getJoinedUserIDs();
                         //to update in realtime database
                         int joinedUserNum = Integer.parseInt(numBefore);
+                        //check joined user list whether is null and whether contains current user
                         if (joinedUserIDs == null) {
+
                             String numAfter = Integer.toString(++joinedUserNum);
                             ArrayList<String> newJoinedUserIDs = new ArrayList<String>();
                             newJoinedUserIDs.add(userId);
                             roomdb.child(s.getKey()).child("joinedUserNum").setValue(numAfter);
                             roomdb.child(s.getKey()).child("joinedUserIDs").setValue(newJoinedUserIDs);
-
                             Log.d("UPDATING DATABASE", "Update room success!");
 
                         } else if (joinedUserIDs != null && !joinedUserIDs.contains(userId)) {
+
                             String numAfter = Integer.toString(++joinedUserNum);
                             joinedUserIDs.add(userId);
                             roomdb.child(s.getKey()).child("joinedUserNum").setValue(numAfter);
                             roomdb.child(s.getKey()).child("joinedUserIDs").setValue(joinedUserIDs);
-
                             Log.d("UPDATING DATABASE", "Update room success!");
 
                         }
@@ -404,6 +419,10 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         });
     }
 
+    /**
+     * Display new room list when room added, changed, and removed
+     * @param rooms new room list
+     */
     private void displayRooms(ArrayList<RoomItem> rooms) {
         if (getActivity() != null) {
             gridAdapter = new GridAdapter(getActivity(), rooms);
@@ -411,6 +430,10 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         }
     }
 
+    /**
+     * check current room list by room ID and make sure the list does not have duplicate room
+     * @param list current room list
+     */
     public void removeDuplicates(ArrayList<RoomItem> list) {
         // Create a new ArrayList
         ArrayList<RoomItem> newList = new ArrayList<RoomItem>();
@@ -429,6 +452,10 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         rooms = newList;
     }
 
+    /**
+     * The default room, which can not be change, remove and interact
+     * @return default room item
+     */
     private RoomItem getDedaultRoom() {
         RoomItem defaultRoom = new RoomItem(userId, "Welcome to 0204!");
         defaultRoom.setRoomCreatedTime("2020-1-1 00:00:01");
