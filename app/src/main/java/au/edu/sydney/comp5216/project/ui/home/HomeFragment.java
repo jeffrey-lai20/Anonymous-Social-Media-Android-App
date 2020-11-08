@@ -345,7 +345,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                     RoomItem r = (RoomItem) s.getValue(RoomItem.class);
                     //check room ID
                     r.setKey(s.getKey());
-                    if (r.getRoomName().contains(query)) {
+                    if (r.getRoomName().toLowerCase().contains(query.toLowerCase())) {
                         rooms.add(r);
                     }
                 }
