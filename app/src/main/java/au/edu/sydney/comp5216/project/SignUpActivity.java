@@ -40,17 +40,25 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Activity to handle new user sign up using firebase.
+ */
 public class SignUpActivity extends AppCompatActivity {
 
     private EditText inputEmail, inputPassword;
     private Button btnSignIn, btnSignUp, btnResetPassword;
     private ProgressBar progressBar;
-    private FirebaseAuth auth;
-    private FirebaseFirestore db;
-
     private RadioGroup radioGender;
     private String gender = "male";
 
+    //Firebase declaration
+    private FirebaseAuth auth;
+    private FirebaseFirestore db;
+
+    /**
+     * Method called when activity is created.
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,25 +69,23 @@ public class SignUpActivity extends AppCompatActivity {
         // Access a Cloud Firestore instance from your Activity
         db = FirebaseFirestore.getInstance();
 
+        //initialisation of variables
         btnSignIn = (Button) findViewById(R.id.sign_in_button);
         btnSignUp = (Button) findViewById(R.id.sign_up_button);
         inputEmail = (EditText) findViewById(R.id.email);
         inputPassword = (EditText) findViewById(R.id.password);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
         btnResetPassword = (Button) findViewById(R.id.btn_reset_password);
-
         radioGender=(RadioGroup)findViewById(R.id.radioGrp);
 
-
+        //Handle user clicking on the radio
         radioGender.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
 
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                // TODO Auto-generated method stub
                 int childCount = group.getChildCount();
                 for (int x = 0; x < childCount; x++) {
                     RadioButton btn = (RadioButton) group.getChildAt(x);
-
                     if (btn.getId() == R.id.radioM){
                         btn.setText("Male");
                     } else if (btn.getId() == R.id.radioF) {
@@ -87,7 +93,6 @@ public class SignUpActivity extends AppCompatActivity {
                     } else if (btn.getId() == R.id.radioO) {
                         btn.setText("Other");
                     }
-
                     if (btn.getId() == checkedId) {
                         gender=btn.getText().toString();// here gender will contain M or F.
                     }
@@ -96,7 +101,7 @@ public class SignUpActivity extends AppCompatActivity {
             }
         });
 
-
+        //Start the activity to reset password if clicked
         btnResetPassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -111,6 +116,7 @@ public class SignUpActivity extends AppCompatActivity {
             }
         });
 
+        //Handles the creation of a new user
         btnSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -118,6 +124,7 @@ public class SignUpActivity extends AppCompatActivity {
                 final String email = inputEmail.getText().toString().trim();
                 String password = inputPassword.getText().toString().trim();
 
+                //Error handling
                 if (TextUtils.isEmpty(email)) {
                     Toast.makeText(getApplicationContext(), "Please enter an email address.", Toast.LENGTH_SHORT).show();
                     return;
@@ -134,7 +141,8 @@ public class SignUpActivity extends AppCompatActivity {
                 }
 
                 progressBar.setVisibility(View.VISIBLE);
-                //create user
+
+                //Create a new user in Firebase authentication
                 auth.createUserWithEmailAndPassword(email, password)
                         .addOnCompleteListener(SignUpActivity.this, new OnCompleteListener<AuthResult>() {
                             @Override
@@ -162,6 +170,8 @@ public class SignUpActivity extends AppCompatActivity {
                                                         }
                                                         count = 10000000 + count;   //User ID will be determined on number of users
                                                         String uri = "https://firebasestorage.googleapis.com/v0/b/comp5216-project.appspot.com/o/default.png?alt=media&token=aaffd36b-ae21-4a8f-bfe0-cd0dc742c892";
+
+                                                        //Collation of user data
                                                         final Map<String, Object> user = new HashMap<>();
                                                         user.put("email", email);
                                                         user.put("myRooms", new ArrayList());
@@ -171,15 +181,13 @@ public class SignUpActivity extends AppCompatActivity {
                                                         user.put("photo", uri);
                                                         user.put("postLikes", new ArrayList());
 
+                                                        //Adding the information to firebase
                                                         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-
                                                         UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
                                                                 .setDisplayName(Integer.toString(count))
                                                                 .setPhotoUri(Uri.parse(uri))
                                                                 .build();
-
                                                         auth.getCurrentUser().updateProfile(profileUpdates);
-
                                                         firebaseUser.updateProfile(profileUpdates)
                                                                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                                                                     @Override
@@ -191,20 +199,7 @@ public class SignUpActivity extends AppCompatActivity {
                                                                 });
 
                                                         //Sign in is successful
-
                                                         db.collection("users").document(String.valueOf(count)).set(user);
-//                                                        //Add user details to Firestore database
-//                                                        db.collection("users").add(user)
-//                                                                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-//                                                                    @Override
-//                                                                    public void onSuccess(DocumentReference documentReference) {
-//                                                                    }
-//                                                                })
-//                                                                .addOnFailureListener(new OnFailureListener() {
-//                                                                    @Override
-//                                                                    public void onFailure(@NonNull Exception e) {
-//                                                                    }
-//                                                                });
                                                     } else {
                                                         Log.d("TAG", "Error getting documents: ", task.getException());
                                                     }

@@ -52,71 +52,8 @@ import au.edu.sydney.comp5216.project.ui.moment.MomentViewModel;
 import au.edu.sydney.comp5216.project.ui.post.Post;
 import au.edu.sydney.comp5216.project.MarshmallowPermission;
 
-
-//public class ProfileFragment extends Fragment{
-//
-//    private ProfileViewModel profileViewModel;
-//    private FirebaseAuth.AuthStateListener authListener;
-//    private FirebaseAuth auth;
-//    private Button signOut;
-//
-//    public View onCreateView(@NonNull LayoutInflater inflater,
-//                             ViewGroup container, Bundle savedInstanceState) {
-//        profileViewModel =
-//                ViewModelProviders.of(this).get(ProfileViewModel.class);
-//        View root = inflater.inflate(R.layout.fragment_setting, container, false);
-//        final TextView textView = root.findViewById(R.id.text_profile);
-//        signOut = (Button) root.findViewById(R.id.sign_out);
-//
-//        profileViewModel.getText().observe(getViewLifecycleOwner(), new Observer<String>() {
-//            @Override
-//            public void onChanged(@Nullable String s) {
-//                textView.setText(s);
-//            }
-//        });
-//        //get firebase auth instance
-//        auth = FirebaseAuth.getInstance();
-//
-//        //get current user
-//        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-//
-//        authListener = new FirebaseAuth.AuthStateListener() {
-//            @Override
-//            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-//                FirebaseUser user = firebaseAuth.getCurrentUser();
-//                if (user == null) {
-//                    // user auth state is changed - user is null
-//                    // launch login activity
-//                    Intent intent = new Intent(getActivity(), LoginActivity.class);
-//
-//                    startActivity(intent);
-//                }
-//            }
-//        };
-//
-//        signOut.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                System.out.println("Signed out");
-//                signOut();
-//            }
-//        });
-//        return root;
-//    }
-//
-//
-//    //sign out method
-//    public void signOut() {
-//        auth.signOut();
-//        Intent intent = new Intent(getActivity(), LoginActivity.class);
-//        startActivity(intent);
-//    }
-//
-//}
 public class ProfileFragment extends Fragment{
 
-    private ProfileViewModel profileViewModel;
-    private FirebaseAuth.AuthStateListener authListener;
     private FirebaseAuth auth;
     private FloatingActionButton button;
     private MomentViewModel momentViewModel;
@@ -126,19 +63,11 @@ public class ProfileFragment extends Fragment{
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private String TAG = "Post";
     private Post post;
-    private CountDownLatch doneSignal;
     private String userId;
     private FirebaseUser firebaseUser;
-    private Button  changePicture, loadPhoto;
-    private Uri filePath;
-    FirebaseStorage storage;
-    StorageReference storageReference;
-    public String photoFileName = "photo.jpg";
-    private File file;
     private ImageView ivPreview;
     private static final int MY_PERMISSIONS_REQUEST_READ_PHOTOS = 102;
 
-//    MarshmallowPermission marshmallowPermission = new MarshmallowPermission(this);
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -155,8 +84,7 @@ public class ProfileFragment extends Fragment{
 
         //get firebase auth instance
         auth = FirebaseAuth.getInstance();
-//        changePicture = (Button) root.findViewById(R.id.changePicture);
-//        loadPhoto = (Button) root.findViewById(R.id.loadphoto);
+
         ivPreview = (ImageView) root.findViewById(R.id.photopreview);
 
         Uri uri = auth.getCurrentUser().getPhotoUrl();
@@ -164,21 +92,6 @@ public class ProfileFragment extends Fragment{
         Glide.with(ivPreview.getContext())
                 .load(uri)
                 .into(ivPreview);
-
-//        loadPhoto.setOnClickListener(new View.OnClickListener() {
-//            public void onClick(View v) {
-////                if (!marshmallowPermission.checkPermissionForReadfiles()) {
-////                    marshmallowPermission.requestPermissionForReadfiles();
-////                } else {
-//                    // Create intent for picking a photo from the gallery
-//                    Intent intent = new Intent(Intent.ACTION_PICK,
-//                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-//
-//                    // Bring up gallery to select a photo
-//                    startActivityForResult(intent, MY_PERMISSIONS_REQUEST_READ_PHOTOS);
-////                 }
-//            }
-//        });
 
 
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -194,9 +107,6 @@ public class ProfileFragment extends Fragment{
         return root;
     }
 
-    public void onLoadPhotoClick(View view) {
-
-    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
