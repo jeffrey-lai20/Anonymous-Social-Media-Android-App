@@ -1,28 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.home.HomeFragment">
 
-    <SearchView
-        android:id="@+id/searchView"
-        android:layout_width="wrap_content"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:queryHint="Search Here"
-        android:iconifiedByDefault="false"
-        android:layout_alignParentTop="true"
-        />
+        app:layout_constraintBottom_toTopOf="@+id/gridView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="@drawable/grid_view_item_border">
+
+        <SearchView
+            android:id="@+id/searchView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:iconifiedByDefault="false"
+            android:background="@drawable/shape_round_search_view"
+            android:layout_marginTop="16dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginBottom="16dp"
+            android:queryHint="Search..."
+            app:iconifiedByDefault="false"
+            app:layout_constraintBottom_toTopOf="@+id/space2"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Space
+            android:id="@+id/space2"
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/searchView" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 
     <GridView
         android:id="@+id/gridView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="84dp"
         android:gravity="center"
         android:numColumns="3"
-        android:stretchMode="columnWidth">
-        </GridView>
+        android:stretchMode="columnWidth"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/constraintLayout">
+
+    </GridView>
 
     <ImageButton
         android:id="@+id/btn_add_new_room"
@@ -32,19 +67,10 @@
         android:layout_alignParentEnd="true"
         android:layout_marginTop="550dp"
         android:layout_marginEnd="20dp"
+        android:background="@android:color/transparent"
         android:src="@drawable/ic_add_new_room"
-        android:background="@android:color/transparent"/>
-
-<!--    <ImageButton-->
-<!--        android:id="@+id/btn_search_room"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_below="@+id/btn_add_new_room"-->
-<!--        android:layout_alignStart="@+id/btn_add_new_room"-->
-<!--        android:layout_alignEnd="@+id/btn_add_new_room"-->
-<!--        android:layout_marginTop="15dp"-->
-<!--        android:src="@drawable/ic_search_room"-->
-<!--        android:background="@android:color/transparent"/>-->
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/gridView" />
 
 
 </RelativeLayout>

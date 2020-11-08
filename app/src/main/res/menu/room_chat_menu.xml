@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/menu_change_room_name"
+        android:title="Change Room Name"></item>
     <item android:id="@+id/menu_delete"
         android:title="Delete Room"></item>
     <item android:id="@+id/menu_quit"

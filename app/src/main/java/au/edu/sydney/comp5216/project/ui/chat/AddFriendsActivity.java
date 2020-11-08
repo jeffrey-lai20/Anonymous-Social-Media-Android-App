@@ -67,8 +67,7 @@ public class AddFriendsActivity extends AppCompatActivity {
     }
 
 
-    private void initData()
-    {
+    private void initData() {
         String uid = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
         DBHelper.getInstance().getDatabase().getReference(Constants.Reference.ChatList)
                 .child(uid).addValueEventListener(mChatListValueLister);
@@ -133,7 +132,7 @@ public class AddFriendsActivity extends AppCompatActivity {
     {
         ChatListInfo chatListInfo = new ChatListInfo();
         chatListInfo.timeStamp = String.valueOf(System.currentTimeMillis());
-        chatListInfo.lastMessage = "your are friends now!";
+        chatListInfo.lastMessage = "You are friends now!";
         chatListInfo.userId = user.uid;
         chatListInfo.email = user.email;
 

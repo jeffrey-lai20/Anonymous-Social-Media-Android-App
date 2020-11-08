@@ -67,9 +67,10 @@ public class MomentFragment extends Fragment{
         return root;
     }
 
+    // Get top 15 posts from firestore[
     public void getpost(final ArrayList<String> group){
         db.collection("posts")
-                .orderBy("created_at", Query.Direction.DESCENDING)
+                .orderBy("created_at", Query.Direction.DESCENDING).limit(15)
                 .get()
                 .addOnCompleteListener(getActivity(), new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -83,15 +84,15 @@ public class MomentFragment extends Fragment{
                                 mDataList.add(post);
                                 //getprofile_picture(post,task.getResult().size());
                             }
-                            getpicture();
+                            mAdapter.notifyDataSetChanged();
                         } else {
                             Log.d(TAG, "Error getting documents: ", task.getException());
                         }
                     }
                 });
-
     }
 
+    // Get the list of likes of current user
     public void getlist_like(){
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         DocumentReference docref = db.collection("users").document(user.getDisplayName());
@@ -111,29 +112,6 @@ public class MomentFragment extends Fragment{
                 }
             }
         });
-    }
-
-
-    public void getpicture(){
-        for(final Post post:mDataList){
-            DocumentReference docref = db.collection("users").document(post.getid().toString());
-            docref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                    if (task.isSuccessful()) {
-                        DocumentSnapshot document = task.getResult();
-                        if (document.exists()) {
-                            post.setUser_picture_path(document.getString("photo"));
-                        } else {
-
-                        }
-                    } else {
-                        Toast.makeText(getActivity(),"Failed. Please check your network connection",Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-        }
-        mAdapter.notifyDataSetChanged();
     }
 
 }

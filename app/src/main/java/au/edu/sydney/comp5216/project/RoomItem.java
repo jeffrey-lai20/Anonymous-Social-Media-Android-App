@@ -18,6 +18,8 @@ public class RoomItem implements Comparable<RoomItem> {
     private ArrayList<String> joinedUserIDs;
     private String roomCreatedTime;
 
+    public RoomItem(){}
+
     public RoomItem(String ownerId, String roomName) {
         this.roomId = UUID.randomUUID().toString();
         this.ownerId = ownerId;
@@ -132,5 +134,4 @@ public class RoomItem implements Comparable<RoomItem> {
         }
         return date;
     }
-
 }

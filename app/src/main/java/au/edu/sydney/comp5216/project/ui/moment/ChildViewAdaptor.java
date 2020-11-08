@@ -63,8 +63,10 @@ public class ChildViewAdaptor extends RecyclerView.Adapter<ChildViewAdaptor.Chil
         StorageReference storageReference = FirebaseStorage.getInstance().getReference();
         if(reply.getgender().equals("male")){
             holder.picture.setImageResource(R.drawable.male);
-        }else {
+        }else if(reply.getgender().equals("Female")){
             holder.picture.setImageResource(R.drawable.female);
+        }else{
+            holder.picture.setImageResource(R.drawable.anonymous);
         }
     }
 
